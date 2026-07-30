@@ -191,7 +191,7 @@
 
     .hero h1 {
       margin-top: 22px;
-      font-size: clamp(3rem, 7vw, 6.6rem);
+      font-size: clamp(3rem, 7vw, 5.4rem);
       max-width: 890px;
     }
 
@@ -585,6 +585,7 @@
     .case-points strong { color: var(--ink); }
 
     .case-image-frame {
+      position: relative;
       background: #121614;
       border-radius: 22px;
       padding: 14px;
@@ -598,6 +599,43 @@
       object-position: top;
       border-radius: 14px;
       background: #e8ece4;
+    }
+
+    .case-mobile {
+      position: absolute;
+      right: clamp(-14px, -2vw, 14px);
+      bottom: -30px;
+      width: clamp(96px, 15vw, 132px);
+      padding: 7px;
+      background: #121614;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 26px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.22);
+    }
+
+    .case-mobile img {
+      width: 100%;
+      aspect-ratio: 9 / 19.5;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 19px;
+      background: #e8ece4;
+    }
+
+    .case-mobile-label {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: var(--ink);
+      font-size: .66rem;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
     }
 
     .split {
@@ -1072,6 +1110,10 @@
                 <span>lwppaintingdecorating.co.uk</span>
               </div>
               <img src="images/lwp-preview.jpg" alt="Preview of the LWP Painting and Decorating website" loading="lazy" />
+              <div class="case-mobile">
+                <span class="case-mobile-label">Mobile</span>
+                <img src="images/lwp-preview-mobile.jpg" alt="Mobile preview of the LWP Painting and Decorating website" loading="lazy" />
+              </div>
             </div>
           </article>
 
@@ -1093,6 +1135,10 @@
                 <span>kcmcleaning.co.uk</span>
               </div>
               <img src="images/kcm-preview.jpg" alt="Preview of the KCM Cleaning website" loading="lazy" />
+              <div class="case-mobile">
+                <span class="case-mobile-label">Mobile</span>
+                <img src="images/kcm-preview-mobile.jpg" alt="Mobile preview of the KCM Cleaning website" loading="lazy" />
+              </div>
             </div>
           </article>
         </div>
