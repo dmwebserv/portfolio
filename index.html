@@ -1013,19 +1013,6 @@
       </div>
     </section>
 
-    <!--
-      STRIPE AUTOMATION (optional, ~5 min setup, no code):
-      1. Create a free Stripe account at stripe.com if you don't already have one.
-      2. In the Stripe Dashboard go to Payment links > New, and create one link per package:
-         - Starter        £199 one-off
-         - Business        £399 one-off
-         - Care Plan add-on £29/month (recurring)
-      3. Under each link's "After payment" settings, set the redirect to https://dmwebservices.co.uk/thanks.html
-      4. Below, replace the href="#connect" on each .price-btn with the matching Stripe link URL,
-         and remove that button's data-package attribute (it's only used for the form fallback).
-      Until you do that, "Get started" jumps to the contact form below with the chosen package
-      pre-filled, so nothing is broken while Stripe is being set up.
-    -->
     <section id="packages" aria-labelledby="packages-heading">
       <div class="container">
         <div class="section-head">
@@ -1047,7 +1034,7 @@
               <li>Contact form set up</li>
               <li>Domain set up for you (billed yearly, from ~£10)</li>
             </ul>
-            <a href="#connect" class="btn btn-outline price-btn" data-package="Starter - from £200 one-off">Get started</a>
+            <a href="https://buy.stripe.com/9B64gzgKE0FB2At5OjfUQ03" class="btn btn-outline price-btn">Get started</a>
           </article>
 
           <article class="price-card featured">
@@ -1061,7 +1048,7 @@
               <li>Business email set up on your domain</li>
               <li>Google-friendly SEO basics</li>
             </ul>
-            <a href="#connect" class="btn btn-accent price-btn" data-package="Business - from £450 one-off">Get started</a>
+            <a href="https://buy.stripe.com/00w8wP8e82NJ3ExccHfUQ02" class="btn btn-accent price-btn">Get started</a>
           </article>
 
           <article class="price-card">
@@ -1074,7 +1061,7 @@
               <li>Review showcase refreshes</li>
               <li>Priority support</li>
             </ul>
-            <a href="#connect" class="btn btn-outline price-btn" data-package="Business + Care Plan - from £450 + £30/mo">Get started</a>
+            <a href="https://buy.stripe.com/aFaeVd51W9c7ejbgsXfUQ01" class="btn btn-outline price-btn">Get started</a>
           </article>
         </div>
 
@@ -1206,10 +1193,9 @@
   <div class="connect-box">
     <h2>Let's build something great together</h2>
     <p>From independent makers to growing trades, I build custom web tools that get real business results. Drop your project notes down below.</p>
-    <p id="package-indicator" style="display:none; margin-top:-6px; margin-bottom:22px; color:#101513; background:var(--accent); padding:8px 14px; border-radius:999px; font-weight:850; font-size:.86rem; width:fit-content;"></p>
 
     <form action="https://formsubmit.co/info@dmwebservices.co.uk" method="POST">
-      
+
       <!-- FormSubmit settings -->
       <input type="hidden" name="_subject" value="New website enquiry from dmwebservices.">
       <input type="hidden" name="_template" value="table">
@@ -1218,9 +1204,6 @@
 
       <!-- Spam trap -->
       <input type="text" name="_honey" style="display:none">
-
-      <!-- Set automatically when a package "Get started" button is clicked -->
-      <input type="hidden" name="package" id="selected-package" value="">
 
       <div class="form-row">
         <div class="input-group">
@@ -1257,19 +1240,5 @@
       <p>Built clean, fast and mobile-friendly.</p>
     </div>
   </footer>
-<script>
-  document.querySelectorAll('.price-btn[data-package]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var pkg = btn.getAttribute('data-package');
-      var field = document.getElementById('selected-package');
-      var indicator = document.getElementById('package-indicator');
-      if (field) field.value = pkg;
-      if (indicator) {
-        indicator.textContent = 'Selected package: ' + pkg;
-        indicator.style.display = 'inline-flex';
-      }
-    });
-  });
-</script>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0fee5b8a923d922',t:'MTc4MjE2OTUyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
