@@ -439,6 +439,102 @@
 
     .card p { font-size: .98rem; }
 
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .price-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 30px 26px;
+      box-shadow: 0 12px 36px rgba(16, 21, 19, 0.04);
+    }
+
+    .price-card.featured {
+      border-color: var(--ink);
+      box-shadow: var(--shadow);
+      transform: translateY(-6px);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -13px;
+      left: 26px;
+      background: var(--accent);
+      color: var(--ink);
+      font-size: .74rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .price-eyebrow {
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .price-tag {
+      margin-top: 12px;
+      font-size: 2.2rem;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+    }
+
+    .price-tag span {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .price-blurb {
+      margin-top: 10px;
+      font-size: .95rem;
+    }
+
+    .price-features {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      margin: 22px 0 28px;
+      font-size: .93rem;
+      color: var(--ink-soft);
+      font-weight: 650;
+    }
+
+    .price-features li { padding-left: 22px; position: relative; }
+
+    .price-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-dark);
+      font-weight: 950;
+    }
+
+    .price-btn { margin-top: auto; width: 100%; }
+
+    .price-note {
+      margin-top: 26px;
+      font-size: .88rem;
+      color: var(--muted);
+      max-width: 640px;
+    }
+
     .work-case {
       display: grid;
       grid-template-columns: .95fr 1.05fr;
@@ -708,6 +804,8 @@
       .split,
       .contact-panel { grid-template-columns: 1fr; }
       .cards { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .price-card.featured { transform: none; }
       .process { grid-template-columns: 1fr 1fr; }
       .section-head { display: block; }
       .section-head p { margin-top: 16px; }
@@ -764,6 +862,7 @@
 
       <ul class="nav-links">
         <li><a href="#services">Services</a></li>
+        <li><a href="#packages">Packages</a></li>
         <li><a href="#work">Work</a></li>
         <li><a href="#process">Process</a></li>
         <li><a href="#connect">Contact</a></li>
@@ -782,6 +881,7 @@
           <p class="lead">I help trades, sole traders and small companies get online with fast, mobile-friendly websites that showcase their work, build trust and make enquiries easy.</p>
 
           <div class="hero-actions">
+            <a href="#packages" class="btn btn-primary">See packages & pricing</a>
             <a href="#connect" class="btn btn-accent">Tell me about your business</a>
             <a href="#work" class="btn btn-outline">View recent work</a>
           </div>
@@ -867,6 +967,75 @@
             <p>I can help with domain setup, hosting, contact forms, business email forwarding and the technical bits that usually cause headaches.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <!--
+      STRIPE AUTOMATION (optional, ~5 min setup, no code):
+      1. Create a free Stripe account at stripe.com if you don't already have one.
+      2. In the Stripe Dashboard go to Payment links > New, and create one link per package:
+         - Starter        £199 one-off
+         - Business        £399 one-off
+         - Care Plan add-on £29/month (recurring)
+      3. Under each link's "After payment" settings, set the redirect to https://dmwebservices.co.uk/thanks.html
+      4. Below, replace the href="#connect" on each .price-btn with the matching Stripe link URL,
+         and remove that button's data-package attribute (it's only used for the form fallback).
+      Until you do that, "Get started" jumps to the contact form below with the chosen package
+      pre-filled, so nothing is broken while Stripe is being set up.
+    -->
+    <section id="packages" aria-labelledby="packages-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Packages</span>
+            <h2 id="packages-heading">Pick a package, and I'll get started.</h2>
+          </div>
+          <p>Fixed-price packages so you know exactly what you're getting before we begin. Need something bespoke? <a href="#connect">Let's talk instead.</a></p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card">
+            <span class="price-eyebrow">Starter</span>
+            <p class="price-tag">£199 <span>one-off</span></p>
+            <p class="price-blurb">A single, sharp landing page to get a sole trader online fast.</p>
+            <ul class="price-features">
+              <li>One-page custom design</li>
+              <li>Mobile-first build</li>
+              <li>Contact form set up</li>
+              <li>Domain connection help</li>
+            </ul>
+            <a href="#connect" class="btn btn-outline price-btn" data-package="Starter — £199 one-off">Get started</a>
+          </article>
+
+          <article class="price-card featured">
+            <span class="price-badge">Most popular</span>
+            <span class="price-eyebrow">Business</span>
+            <p class="price-tag">£399 <span>one-off</span></p>
+            <p class="price-blurb">A full multi-section website built to turn visitors into enquiries.</p>
+            <ul class="price-features">
+              <li>Everything in Starter</li>
+              <li>Multi-section site (services, gallery, reviews)</li>
+              <li>Domain & business email setup</li>
+              <li>Google-friendly SEO basics</li>
+            </ul>
+            <a href="#connect" class="btn btn-accent price-btn" data-package="Business — £399 one-off">Get started</a>
+          </article>
+
+          <article class="price-card">
+            <span class="price-eyebrow">Business + Care Plan</span>
+            <p class="price-tag">£399 <span>+ £29/mo</span></p>
+            <p class="price-blurb">The Business site, plus ongoing updates so it never goes stale.</p>
+            <ul class="price-features">
+              <li>Everything in Business</li>
+              <li>Monthly content & photo updates</li>
+              <li>Review showcase refreshes</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="#connect" class="btn btn-outline price-btn" data-package="Business + Care Plan — £399 + £29/mo">Get started</a>
+          </article>
+        </div>
+
+        <p class="price-note">Guide pricing for a typical single-location small business site — final quote confirmed after a quick chat. Card payments are securely processed by Stripe.</p>
       </div>
     </section>
 
@@ -963,6 +1132,7 @@
   <div class="connect-box">
     <h2>Let's build something great together</h2>
     <p>From independent makers to growing trades, I build custom web tools that get real business results. Drop your project notes down below.</p>
+    <p id="package-indicator" style="display:none; margin-top:-6px; margin-bottom:22px; color:#101513; background:var(--accent); padding:8px 14px; border-radius:999px; font-weight:850; font-size:.86rem; width:fit-content;"></p>
 
     <form action="https://formsubmit.co/info@dmwebservices.co.uk" method="POST">
       
@@ -974,6 +1144,9 @@
 
       <!-- Spam trap -->
       <input type="text" name="_honey" style="display:none">
+
+      <!-- Set automatically when a package "Get started" button is clicked -->
+      <input type="hidden" name="package" id="selected-package" value="">
 
       <div class="form-row">
         <div class="input-group">
@@ -1010,5 +1183,19 @@
       <p>Built clean, fast and mobile-friendly.</p>
     </div>
   </footer>
+<script>
+  document.querySelectorAll('.price-btn[data-package]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pkg = btn.getAttribute('data-package');
+      var field = document.getElementById('selected-package');
+      var indicator = document.getElementById('package-indicator');
+      if (field) field.value = pkg;
+      if (indicator) {
+        indicator.textContent = 'Selected package: ' + pkg;
+        indicator.style.display = 'inline-flex';
+      }
+    });
+  });
+</script>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0fee5b8a923d922',t:'MTc4MjE2OTUyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
