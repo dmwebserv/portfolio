@@ -12,10 +12,22 @@
   <meta property="og:description" content="Affordable custom websites for local trades, sole traders and small businesses - built to look professional and generate enquiries." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://dmwebservices.co.uk/" />
-  <meta property="og:image" content="" />
+  <meta property="og:site_name" content="dmwebservices." />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:image" content="https://dmwebservices.co.uk/images/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="dmwebservices. websites, apps and graphics for local businesses" />
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="dmwebservices. | Websites for Small Local Businesses" />
+  <meta name="twitter:description" content="Affordable custom websites, apps and graphics for local trades, sole traders and small businesses." />
+  <meta name="twitter:image" content="https://dmwebservices.co.uk/images/og-image.jpg" />
 
   <link rel="canonical" href="https://dmwebservices.co.uk/" />
   <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
 
   <style>
     :root {
@@ -172,6 +184,9 @@
     }
 
     .btn:hover { transform: translateY(-2px); }
+
+    .legal-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mobile-menu { display: none; }
     .btn-primary { background: var(--ink); color: var(--paper); }
     .btn-primary:hover { background: #27302b; }
     .btn-accent { background: var(--accent); color: var(--ink); }
@@ -696,31 +711,9 @@
     .step h3 { font-size: 1.28rem; letter-spacing: -0.03em; margin-bottom: 9px; }
     .step p { color: #c9d2cc; font-size: .94rem; }
 
-    .contact-panel {
-      background:
-        linear-gradient(135deg, rgba(183,255,115,.18), transparent 38%),
-        var(--ink);
-      color: var(--paper);
-      border-radius: var(--radius-lg);
-      padding: clamp(28px, 5vw, 58px);
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 44px;
-      align-items: start;
-    }
 
-    .contact-panel h2 { font-size: clamp(2.25rem, 4.8vw, 4.8rem); }
-    .contact-panel p { color: #c9d2cc; margin-top: 18px; font-size: 1.08rem; }
 
-    .contact-options {
-      display: grid;
-      gap: 12px;
-      margin-top: 26px;
-      color: #e9efe8;
-      font-weight: 750;
-    }
 
-    .contact-options a { color: var(--accent); text-decoration: none; }
 
     form {
       background: rgba(255,255,255,.08);
@@ -735,7 +728,6 @@
       gap: 14px;
     }
 
-    .field { margin-bottom: 14px; }
 
     label {
       display: block;
@@ -762,11 +754,6 @@
     input::placeholder, textarea::placeholder { color: rgba(248,248,243,.48); }
     input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(183,255,115,.12); }
 
-    .form-note {
-      color: #aeb8b1;
-      font-size: .86rem;
-      margin-top: 12px;
-    }
 
     .site-footer {
       padding: 34px 0;
@@ -844,8 +831,7 @@
       .hero-grid,
       .pain-panel,
       .work-case,
-      .split,
-      .contact-panel { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
       .cards { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; }
       .price-card.featured { transform: none; }
@@ -860,6 +846,44 @@
       .site-header { position: static; }
       .nav { min-height: 68px; }
       .nav-links { display: none; }
+      .nav-cta { display: none; }
+      .mobile-menu { display: block; position: relative; }
+      .mobile-menu summary {
+        list-style: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--paper);
+        font-weight: 850;
+        font-size: .92rem;
+      }
+      .mobile-menu summary::-webkit-details-marker { display: none; }
+      .mobile-menu ul {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 10px);
+        width: 230px;
+        list-style: none;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow);
+        padding: 8px;
+        z-index: 60;
+      }
+      .mobile-menu li a {
+        display: block;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 750;
+        color: var(--ink);
+      }
+      .mobile-menu li a:hover { background: var(--panel-alt); }
       .hero { padding-top: 50px; }
       .hero h1 { font-size: clamp(2.7rem, 14vw, 4.2rem); }
       section { padding: 58px 0; }
@@ -884,12 +908,21 @@
   {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    "name": "DM Web Services",
+    "name": "dmwebservices.",
     "url": "https://dmwebservices.co.uk/",
-    "founder": "Danny Manning",
-    "areaServed": "United Kingdom",
-    "description": "Custom website design, domain setup, business email forwarding and ongoing website upkeep for small businesses and local trades.",
-    "serviceType": ["Web design", "Website maintenance", "Domain setup", "Small business website design"]
+    "logo": "https://dmwebservices.co.uk/images/favicon.png",
+    "image": "https://dmwebservices.co.uk/images/og-image.jpg",
+    "email": "info@dmwebservices.co.uk",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "info@dmwebservices.co.uk",
+      "contactType": "customer service",
+      "availableLanguage": "English"
+    },
+    "founder": { "@type": "Person", "name": "Danny Manning" },
+    "areaServed": "GB",
+    "description": "Custom website design, web app design, graphic design and personal app creation for small businesses, local trades and individuals. Domain setup, business email forwarding and ongoing website upkeep.",
+    "serviceType": ["Web design", "Website maintenance", "Domain setup", "Small business website design", "App design", "Graphic design", "Personal app creation"]
   }
   </script>
 </head>
@@ -898,7 +931,7 @@
 
   <header class="site-header">
     <nav class="nav container" aria-label="Main navigation">
-      <a href="#top" class="brand" aria-label="DM Web Services home">
+      <a href="#top" class="brand" aria-label="dmwebservices. home">
         <span class="brand-mark">dm.</span>
         <span>dmwebservices.</span>
       </a>
@@ -911,7 +944,18 @@
         <li><a href="#connect">Contact</a></li>
       </ul>
 
-      <a href="#connect" class="btn btn-primary">Free website chat</a>
+      <a href="#connect" class="btn btn-primary nav-cta">Free website chat</a>
+
+      <details class="mobile-menu">
+        <summary>Menu</summary>
+        <ul>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#packages">Packages</a></li>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#process">Process</a></li>
+          <li><a href="#connect">Free website chat</a></li>
+        </ul>
+      </details>
     </nav>
   </header>
 
@@ -988,7 +1032,7 @@
         <div class="section-head">
           <div>
             <span class="eyebrow">What you get</span>
-            <h2 id="services-heading">Everything needed to get a clean business website live.</h2>
+            <h2 id="services-heading">Websites, apps and graphics for local businesses.</h2>
           </div>
           <p>Ideal for trades, local services, start-ups and small businesses that want something sharper than a social media page.</p>
         </div>
@@ -1008,6 +1052,21 @@
             <span class="card-number">03 / Setup sorted</span>
             <h3>Domain, email & launch help</h3>
             <p>I can help with domain setup, hosting, contact forms, business email forwarding and the technical bits that usually cause headaches.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">04 / App design</span>
+            <h3>App design</h3>
+            <p>Clean, easy-to-use layouts for web apps and mobile apps, planned around how your customers actually use them.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">05 / Graphics</span>
+            <h3>Graphics & branding</h3>
+            <p>Logos, social media graphics, flyers and print-ready designs that match the look of your website.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">06 / Personal apps</span>
+            <h3>Personal app creation</h3>
+            <p>Have an app idea but no developer? I design and build custom apps for personal use or small businesses. Examples include my gym app, Session, and my calorie tracker, NutriLog.</p>
           </article>
         </div>
       </div>
@@ -1096,10 +1155,10 @@
                 <div class="dots"><span></span><span></span><span></span></div>
                 <span>lwppaintingdecorating.co.uk</span>
               </div>
-              <img src="images/lwp-preview.jpg" alt="Preview of the LWP Painting and Decorating website" loading="lazy" />
+              <img width="1200" height="798" src="images/lwp-preview.jpg" alt="Preview of the LWP Painting and Decorating website" loading="lazy" />
               <div class="case-mobile">
                 <span class="case-mobile-label">Mobile</span>
-                <img src="images/lwp-preview-mobile.jpg" alt="Mobile preview of the LWP Painting and Decorating website" loading="lazy" />
+                <img width="390" height="844" src="images/lwp-preview-mobile.jpg" alt="Mobile preview of the LWP Painting and Decorating website" loading="lazy" />
               </div>
             </div>
           </article>
@@ -1121,14 +1180,35 @@
                 <div class="dots"><span></span><span></span><span></span></div>
                 <span>kcmcleaning.co.uk</span>
               </div>
-              <img src="images/kcm-preview.jpg" alt="Preview of the KCM Cleaning website" loading="lazy" />
+              <img width="1200" height="798" src="images/kcm-preview.jpg" alt="Preview of the KCM Cleaning website" loading="lazy" />
               <div class="case-mobile">
                 <span class="case-mobile-label">Mobile</span>
-                <img src="images/kcm-preview-mobile.jpg" alt="Mobile preview of the KCM Cleaning website" loading="lazy" />
+                <img width="390" height="844" src="images/kcm-preview-mobile.jpg" alt="Mobile preview of the KCM Cleaning website" loading="lazy" />
               </div>
             </div>
           </article>
         </div>
+
+          <article class="work-case">
+            <div>
+              <span class="case-tag">Case study · Mobile car valeting</span>
+              <h3>HWJ Valets</h3>
+              <ul class="case-points">
+                <li><strong>The goal:</strong> a mobile valeting business covering Colchester, Essex and parts of Suffolk needed a site that shows its packages clearly and makes it easy to book.</li>
+                <li><strong>The build:</strong> clear packages with starting prices, a before-and-after gallery with a comparison slider, Facebook reviews, and call, WhatsApp and enquiry routes.</li>
+                <li><strong>The result:</strong> a single place where customers can see the work, check the prices and get in touch on their phone.</li>
+              </ul>
+              <a href="https://hwjvalets.co.uk/" target="_blank" rel="noopener" class="btn btn-primary">View live project →</a>
+            </div>
+
+            <div class="case-image-frame">
+              <div class="browser-top">
+                <div class="dots"><span></span><span></span><span></span></div>
+                <span>hwjvalets.co.uk</span>
+              </div>
+              <img width="1200" height="630" src="images/hwj-preview.jpg" alt="Preview of the HWJ Valets website" loading="lazy" />
+            </div>
+          </article>
       </div>
     </section>
 
@@ -1187,8 +1267,7 @@
       </div>
     </section>
 
-   <!-- Messaging Section -->
-<!-- Messaging Section -->
+  <!-- Contact section -->
 <section id="connect">
   <div class="connect-box">
     <h2>Let's build something great together</h2>
@@ -1237,7 +1316,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <p>© 2026 <strong>dmwebservices</strong>. Custom web design and upkeep by Danny Manning.</p>
-      <p><a href="privacy-policy.html">Privacy Policy</a></p>
+      <p class="legal-links"><a href="privacy-policy.html">Privacy Policy</a> <span aria-hidden="true">·</span> <a href="terms.html">Terms</a> <span aria-hidden="true">·</span> <a href="refunds.html">Refunds &amp; cancellation</a></p>
     </div>
   </footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2f89fda10efd4fb687b7716e111816a6"}'></script><!-- End Cloudflare Web Analytics -->
