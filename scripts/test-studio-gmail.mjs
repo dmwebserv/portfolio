@@ -54,3 +54,6 @@ assert len([p for p in parts if p.get_content_maintype()=='image'])==2
 `],{input:mime,encoding:'utf8'});assert.equal(parsed.status,0,parsed.stderr);
 project.mailPresentation.postalAddress='Changed after review';mock(preflight().slice(0,5));await assert.rejects(()=>g.sendGmail(env,row));assert(!calls.some(c=>c.u.endsWith('/messages/send')));
 console.log('PASS: multipart/related + alternative MIME parsed independently, inline logo/screenshot, exact HTML/plain fallback and changed-approval rejection. No live email.');
+mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Object.assign(Error('Email image unavailable.'),{status:503}));assert(calls[0].u.includes('status=eq.queued'));assert(JSON.parse(calls[0].o.body).detail.includes('image unavailable'));
+mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Error('private-provider-token'));assert(!calls[0].o.body.includes('private-provider-token'));
+console.log('PASS: conditional queued-error persistence, no overwriting claimed records and no unknown provider payload leakage.');

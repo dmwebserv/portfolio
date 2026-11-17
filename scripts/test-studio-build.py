@@ -20,3 +20,18 @@ assert 'id="email"' in s
 assert "CLOUD?'/login/':'/login'" in (out/'app.js').read_text()
 assert not (out/'server').exists()
 print('PASS: directory-index login, root-relative assets, cloud redirect and server exclusion')
+
+import json, struct
+manifest=json.loads((out/'app.webmanifest').read_text())
+assert manifest['display']=='standalone' and manifest['start_url']=='/'
+for icon in manifest['icons']:
+    p=out/icon['src'].lstrip('/')
+    assert p.exists()
+    assert struct.unpack('>II',p.read_bytes()[16:24])==tuple(map(int,icon['sizes'].split('x')))
+for name in ['index.html','login/index.html']:
+    html=(out/name).read_text()
+    assert 'apple-mobile-web-app-capable' in html and 'viewport-fit=cover' in html
+    assert 'apple-touch-icon' in html and 'app.webmanifest' in html
+assert 'studio-booting' in (out/'index.html').read_text()
+assert not list(out.glob('*service-worker*')), 'No private offline cache is configured'
+print('PASS: iOS standalone metadata, favicon/touch icons and manifest sizes; auth-first startup shell.')

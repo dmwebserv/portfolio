@@ -25,3 +25,9 @@ Deploy as a separate private app, not a private-looking page on the public portf
 Open a prospect via its company name or Manage. The project checklist has both demo preview links, five explicit review checks, a recommended next step, editable outreach email, copy/mail-app actions and manual sent/follow-up recording. First contact schedules a seven-day reply/follow-up task. One follow-up maximum; opt-out stages block outreach actions. The form does not send mail or verify eligibility automatically. Prepared messages include a postal-details placeholder which must be replaced before sending/recording. Recorded message snapshots are kept with the project. New fields are inside existing workspace JSON, so no SQL migration is needed. Existing records are retained.
 
 AI context export can prepare a brief for further design work; this release cannot generate or publish a new website from Studio autonomously. Live AI, private uploads and email inbox sync remain unconnected.
+
+## Home Screen / app presentation
+
+The cloud build includes a standalone web manifest, dm. app icons, favicon and Apple Home Screen metadata. In Safari on iOS, use Share → Add to Home Screen (Open as Web App if shown); existing shortcuts may need removing/re-adding to refresh their cached icon. A new standalone install may ask you to sign in again. Internet access remains required. There is no service-worker/offline cache of private pages, records, OAuth tokens or correspondence.
+
+Startup keeps the workspace hidden until its authenticated load completes. The login card fades in; reduced-motion preferences disable transitions. Safe-area/dynamic-viewport styling supports Home Screen mode, and the existing moving glass navigation selection is retained. This is a web-app interpretation of glass styling, not native iOS controls. Browser/Chromium checks do not replace a physical iPhone/Safari test of installation, keyboard and status-bar behaviour.

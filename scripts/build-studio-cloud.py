@@ -25,8 +25,9 @@ if not key.startswith('sb_publishable_'):
 out=root/'dist/studio'
 if out.exists(): shutil.rmtree(out)
 out.mkdir(parents=True)
-for name in ['index.html','style.css','app.js','login.html','login.js','ai.js','mail.js','email-template.js']:
+for name in ['index.html','style.css','app.js','login.html','login.js','ai.js','mail.js','email-template.js','shell.js','app.webmanifest']:
     shutil.copy2(root/'hub'/name,out/name)
+shutil.copytree(root/'hub/app-icons',out/'app-icons')
 shutil.copy2(root/'hub/cloud/adapter.js',out/'cloud.js')
 (out/'config.js').write_text('window.HUB_CONFIG = '+json.dumps({'server':True,'demo':False,'cloud':True,'supabaseUrl':url,'supabaseKey':key})+';\n')
 for name in ['index.html','login.html']:

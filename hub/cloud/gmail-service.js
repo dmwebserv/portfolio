@@ -127,3 +127,9 @@ export async function syncGmail(env,owner){
  await db(env,'studio_gmail_accounts?owner_id=eq.'+encodeURIComponent(owner),{method:'PATCH',body:{last_sync_at:new Date().toISOString()}});
  return {imported,lastSync:new Date().toISOString(),mailbox:connection.mailbox};
 }
+
+// Retain preflight diagnostics without overwriting a concurrent claim/send result.
+export async function recordQueuedError(env,id,error){
+ const detail='Preparation stopped: '+(error.status?error.message:'Preparation could not complete. Check stored status and Gmail Sent before retrying.');
+ await db(env,'studio_mail?id=eq.'+encodeURIComponent(id)+'&status=eq.queued',{method:'PATCH',body:{detail:detail.slice(0,1000),updated_at:new Date().toISOString()}});
+}
