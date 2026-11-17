@@ -25,7 +25,7 @@ if not key.startswith('sb_publishable_'):
 out=root/'dist/studio'
 if out.exists(): shutil.rmtree(out)
 out.mkdir(parents=True)
-for name in ['index.html','style.css','app.js','login.html','login.js']:
+for name in ['index.html','style.css','app.js','login.html','login.js','ai.js']:
     shutil.copy2(root/'hub'/name,out/name)
 shutil.copy2(root/'hub/cloud/adapter.js',out/'cloud.js')
 (out/'config.js').write_text('window.HUB_CONFIG = '+json.dumps({'server':True,'demo':False,'cloud':True,'supabaseUrl':url,'supabaseKey':key})+';\n')
@@ -35,7 +35,7 @@ for name in ['index.html','login.html']:
         s=s.replace('<label>Password','<label>Email<input type="email" id="email" autocomplete="username" required></label><label>Password')
         s=s.replace('<script src="/login.js"></script>','<script src="/config.js"></script><script src="/cloud.js"></script><script src="/login.js"></script>')
     else:
-        s=s.replace('<script src="app.js"></script>','<script src="cloud.js"></script><script src="app.js"></script>')
+        s=s.replace('<script src="ai.js"></script>','<script src="cloud.js"></script><script src="ai.js"></script>')
     p.write_text(s)
 # Generic playbook templates only; these are public boilerplate, not client records.
 for rel in ['README.md','templates/outreach.md','templates/agreement-and-invoices.md','templates/onboarding-and-handover.md','templates/care-plan.md','templates/contact-assessment.md']:
@@ -55,6 +55,7 @@ shutil.copytree(root/'images',out/'images')
 # from /login to /login.html can loop back to /login. No rewrite needed.
 (out/'login').mkdir()
 (out/'login.html').replace(out/'login/index.html')
-(out/'_headers').write_text('/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: no-referrer\n  Cache-Control: no-store\n  Content-Security-Policy: default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; connect-src \'self\' '+url+'; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://formsubmit.co\n')
+(out/'_routes.json').write_text(json.dumps({'version':1,'include':['/api/*'],'exclude':[]}))
+(out/'_headers').write_text('/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: no-referrer\n  Cache-Control: no-store\n  Content-Security-Policy: default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; connect-src \'self\' '+url+'; frame-src \'self\' blob:; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://formsubmit.co\n')
 (out/'404.html').write_text('<!doctype html><title>Not found</title><a href="/">Return to Studio</a>')
 print('Built dist/studio. Publish ONLY this directory. Public shell/templates; private workspace protected by Supabase RLS.')

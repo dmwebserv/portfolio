@@ -1,37 +1,9 @@
-(function () {
-      var btn695 = document.getElementById('btnMode695');
-      var btn295 = document.getElementById('btnMode295');
-
-      if (btn695 && btn295) {
-        btn695.addEventListener('click', function () {
-          document.body.classList.remove('mode-295');
-          btn695.classList.add('is-active');
-          btn295.classList.remove('is-active');
-        });
-        btn295.addEventListener('click', function () {
-          document.body.classList.add('mode-295');
-          btn295.classList.add('is-active');
-          btn695.classList.remove('is-active');
-        });
-      }
-
-      function applyTier(tier,updateURL) {
-        var cheap = tier === 'showcase';
-        document.body.classList.toggle('mode-295',cheap);
-        btn295.classList.toggle('is-active',cheap);btn695.classList.toggle('is-active',!cheap);
-        btn295.setAttribute('aria-pressed',String(cheap));btn695.setAttribute('aria-pressed',String(!cheap));
-        if(updateURL){var u=new URL(location.href);u.searchParams.set('tier',tier);history.replaceState(null,'',u);}
-      }
-      btn295.addEventListener('click',function(){applyTier('showcase',true);});
-      btn695.addEventListener('click',function(){applyTier('catalogue',true);});
-      applyTier(new URLSearchParams(location.search).get('tier')==='showcase'?'showcase':'catalogue',false);
-
-      var form = document.getElementById('demoRfqForm');
-      var notice = document.getElementById('demoNotice');
-      if (form && notice) {
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
-          notice.classList.add('is-shown');
-        });
-      }
-    })();
+'use strict';
+const buttons=[...document.querySelectorAll('.preview button[data-tier]')],filters=[...document.querySelectorAll('[data-filter]')];
+function filter(value){const full=document.body.dataset.tier==='catalogue';document.querySelectorAll('[data-category]').forEach(c=>{c.hidden=(!full&&c.hasAttribute('data-catalogue-only'))||(value!=='all'&&c.dataset.category!==value);});filters.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===value)));}
+function tier(value,write=true){const full=value==='catalogue';document.body.dataset.tier=value;document.querySelectorAll('[data-full]').forEach(e=>e.hidden=!full);document.querySelectorAll('[data-showcase]').forEach(e=>e.hidden=full);buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tier===value)));filter('all');if(write){const u=new URL(location.href);u.searchParams.set('tier',value);if(!full&&['#reference','#company'].includes(u.hash))u.hash='products';history.replaceState(null,'',u);}}
+buttons.forEach(b=>b.addEventListener('click',()=>tier(b.dataset.tier)));filters.forEach(b=>b.addEventListener('click',()=>filter(b.dataset.filter)));
+document.querySelectorAll('[data-product]').forEach(a=>a.addEventListener('click',()=>document.getElementById('product').value=a.dataset.product));
+document.getElementById('demoRfqForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoNotice').textContent='Preview only — no enquiry was sent or saved.';});
+tier(new URLSearchParams(location.search).get('tier')==='showcase'?'showcase':'catalogue',false);
+function measure(){document.documentElement.style.setProperty('--preview-height',document.querySelector('.preview').getBoundingClientRect().height+'px');}if(window.ResizeObserver)new ResizeObserver(measure).observe(document.querySelector('.preview'));window.addEventListener('resize',measure);measure();

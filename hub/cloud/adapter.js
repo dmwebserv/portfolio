@@ -20,6 +20,7 @@
  }
  async function authCall(path,options={}){const s=await session();return call(path,{...options,token:s.access_token});}
  window.StudioCloud={
+  async api(path,body){const s=await session();const r=await fetch(path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+s.access_token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});const data=await r.json();if(!r.ok)throw Error(data.error||'Studio service failed');return data;},
   async login(email,password){return store(await call('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}}));},
   async logout(){try{await authCall('/auth/v1/logout',{method:'POST'});}finally{localStorage.removeItem(slot);}},
   async load(){
