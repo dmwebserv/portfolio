@@ -1,0 +1,18 @@
+const {JSDOM}=require('jsdom'),fs=require('node:fs'),assert=require('node:assert/strict');
+(async()=>{
+const w=new JSDOM(fs.readFileSync('hub/index.html','utf8'),{url:'https://studio.example/',runScripts:'outside-only'}).window;
+w.structuredClone=structuredClone;w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.confirm=()=>true;
+let copied='',calls=0;w.fetch=()=>{calls++;throw Error('No network permitted')};Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async x=>{copied=x}}});
+w.eval(fs.readFileSync('hub/ai.js','utf8'));w.eval(fs.readFileSync('hub/app.js','utf8'));const d=w.document;
+d.querySelector('[data-open="tianyu"]').click();
+assert.equal(d.querySelector('#arena-task').value,'Build or improve the demo');assert.equal(d.querySelector('#arena-notes').checked,false);
+const text=d.querySelector('#arena-text');assert(text.value.includes('https://dmwebservices.co.uk/demos/tyfibre/'));assert(!text.value.includes('https://studio.example/demos/'));
+assert(text.value.includes('390px'));assert(text.value.includes('current working branch'));assert(text.value.includes('Withheld by user'));
+d.querySelector('#arena-copy').click();await new Promise(r=>setTimeout(r,0));assert.equal(copied,text.value);
+const p={name:'Hostile <img src=x onerror=alert(1)>',domain:'example.com',notes:'PRIVATE NOTES',email:'secret@example.com',contact:'PRIVATE CONTACT',activity:['PRIVATE HISTORY'],stage:'Do not contact',resources:[],ai:{research:'Previous unverified result',sources:['https://example.com']}};
+const b=w.StudioBrief.build(p,'Draft outreach',false);assert(b.includes('OUTREACH BLOCKED'));assert(!b.includes('PRIVATE NOTES'));assert(!b.includes('secret@example.com'));assert(!b.includes('PRIVATE CONTACT'));assert(!b.includes('PRIVATE HISTORY'));assert(b.includes('Previous unverified result'));assert(w.StudioBrief.build(p,'Draft outreach',true).includes('PRIVATE NOTES'));
+w.StudioBrief.mount(p,{toast:()=>{}});assert(!d.querySelector('#arena-brief-tools img'));d.querySelector('#arena-notes').click();assert(d.querySelector('#arena-text').value.includes('PRIVATE NOTES'));d.querySelector('#arena-task').value='Plan delivery and next actions';d.querySelector('#arena-task').dispatchEvent(new w.Event('change'));assert(d.querySelector('#arena-text').value.includes('identify blockers'));
+// Clipboard denial exposes a selectable manual fallback, without regenerating edits.
+Object.defineProperty(w.navigator.clipboard,'writeText',{value:async()=>{throw Error('denied')}});d.querySelector('#arena-text').value='My edited brief';d.querySelector('#arena-copy').click();await new Promise(r=>setTimeout(r,0));assert(d.querySelector('#arena-review').open);assert.equal(d.querySelector('#arena-text').value,'My edited brief');assert.equal(calls,0);w.close();
+console.log('PASS: self-contained Arena brief, public demo URLs, opt-in notes, omitted private fields, opt-out guard, text-only rendering, clipboard and manual fallback; no network/API calls.');
+})().catch(e=>{console.error(e);process.exit(1)});
