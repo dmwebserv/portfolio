@@ -108,3 +108,8 @@ A preflight failure leaves a queued record. After fixing setup/assets, **Review 
 The Connected mailbox section now shows the latest outbound status/recipient/detail immediately above the buttons and expands the latest history entry before the design preview. Every disabled send has a visible reason. A queued record is not a send receipt: resolve its preparation message, then use Review & retry if appropriate. `sending` and `uncertain` never offer automatic retry; check Gmail Sent first. Errors survive reopening via private workspace metadata and preflight errors are also written to the queued mail record (conditional on it still being queued). Status checks do not send messages. An accepted/reconciled send clears a stale preparation error.
 
 This improves observability and safe recovery, not a claim that any particular live record has been inspected or fixed. No developer has accessed the owner's actual mailbox or production database to diagnose a specific failed send.
+
+### Demo redesign image generation (v2)
+New branded previews use `shibiao-v2.jpg` and `tianyu-v2.jpg`. The v1 files and their allowlisted hashes remain unchanged for stored historical messages. Save appearance and re-review an unsent branded draft after this upgrade; the server rejects old visual approvals. Old queued branded drafts must be cancelled and prepared again (never automatically resent).
+
+To refresh local supplier screenshots, start a static server on port 8000 and run `scripts/capture-supplier-previews.cjs` with Playwright/Chromium available. It captures catalogue, showcase, mobile and email images and updates the email hash manifest. Once any image version has been used in real mail, create a new version rather than overwriting that version.

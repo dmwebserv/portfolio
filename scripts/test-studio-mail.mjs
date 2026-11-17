@@ -19,7 +19,7 @@ mock([...auth(),[{owner_id:'owner',projects:[p]}],[{direction:'inbound',status:'
 p.stage='Do not contact';mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request(),env})).status,403);
 console.log('PASS: mail same-origin, saved/reviewed snapshot, duplicate/pending/replied/opt-out guards. All external calls mocked; no mail sent.');
 // Branded emails store a server-rendered snapshot, never browser-supplied HTML.
-p.stage='Demo ready';p.name='Shibiao Fastener';p.demo='/demos/lfastener/';p.mailPresentation={format:'branded',postalAddress:'Test business address'};p.outreachDraft=globalThis.StudioEmail.introduction(p,p.mailPresentation.postalAddress);
+p.stage='Demo ready';p.name='Shibiao Fastener';p.demo='/demos/lfastener/';p.mailPresentation={format:'branded',postalAddress:'Test business address',templateVersion:2};p.outreachDraft=globalThis.StudioEmail.introduction(p,p.mailPresentation.postalAddress);
 const snapshot=globalThis.StudioEmail.render(p,p.outreachDraft);
 mock([...auth(),[{owner_id:'owner',projects:[p]}],[],[{id:'new-formatted'}]]);assert.equal((await onRequest({request:request({...input(),presentation:snapshot.config,html:'<script>browser supplied</script>'}),env})).status,200);const stored=JSON.parse(calls.at(-1).o.body);assert.equal(stored.html_body,snapshot.html);assert(!stored.html_body.includes('<script>'));assert.equal(stored.presentation.format,'branded');
 mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request({...input(),presentation:{...snapshot.config,postalAddress:'Changed'}}),env})).status,409);

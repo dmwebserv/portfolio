@@ -31,6 +31,7 @@ export async function onRequest({request,env}){
   if(!subject||subject.length>250||/[\r\n]/.test(subject)||!content)return json({error:'A subject line and body are required.'},400);
   let presentation;
   try{presentation=globalThis.StudioEmail.render(p,text);}catch(e){return json({error:e.message},400);}
+  if(presentation.html&&p.mailPresentation?.templateVersion!==presentation.config.version)return json({error:'The demo screenshots have changed. Save appearance and review the updated preview before sending.'},409);
   if(body.presentation&&JSON.stringify(body.presentation)!==JSON.stringify(presentation.config))return json({error:'Email appearance changed. Save and review the final preview first.'},409);
   if(presentation.html&&!body.presentation)return json({error:'Review the formatted preview before sending.'},400);
   const existing=await get('studio_mail?project_id=eq.'+encodeURIComponent(p.id)+'&select=*');

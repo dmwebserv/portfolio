@@ -10,5 +10,13 @@ export const emailAssets = {
   "dm-logo-v1.png": {
     "sha256": "b19585cd4fdcc0d04cb904b594af525df90b316dde450427af8dedb469922d7e",
     "size": 4942
+  },
+  "shibiao-v2.jpg": {
+    "sha256": "c9d741e78ca52ea7e92eb0556f8e0d474572268a20f1d2dda6e8583027577a45",
+    "size": 139285
+  },
+  "tianyu-v2.jpg": {
+    "sha256": "460dba59779ac9510bdd79a40444eb66ff01e510a41039589482ba2c31a2e427",
+    "size": 190810
   }
 };
