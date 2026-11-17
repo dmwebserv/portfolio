@@ -1,7 +1,7 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';import {webcrypto} from 'node:crypto';
 globalThis.crypto??=webcrypto;
 const moduleURL='data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/cloud/ai-service.js')).toString('base64');
-const transport='data:text/javascript;base64,'+Buffer.from("export async function sendGmail(){return {status:'accepted'};}").toString('base64');
+const transport='data:text/javascript;base64,'+Buffer.from("export async function sendGmail(){return {status:'accepted'};} export async function recordQueuedError(){}").toString('base64');
 await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/email-template.js')).toString('base64'));
 const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL).replace('../../hub/cloud/gmail-service.js',transport).replace("import '../../hub/email-template.js';",'');
 const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));

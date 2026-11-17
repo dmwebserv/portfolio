@@ -138,8 +138,11 @@ def index(): return send_from_directory(ROOT/'hub','index.html')
 
 @app.get('/<name>')
 def assets(name):
-    if name not in ('app.js','style.css','login.js','ai.js','mail.js','email-template.js'): return 'Not found',404
+    if name not in ('app.js','style.css','login.js','ai.js','mail.js','email-template.js','shell.js','app.webmanifest'): return 'Not found',404
     return send_from_directory(ROOT/'hub',name)
+
+@app.get('/app-icons/<path:name>')
+def app_icons(name): return send_from_directory(ROOT/'hub/app-icons',name)
 
 @app.get('/operations/uk-export/<path:name>')
 @protected
