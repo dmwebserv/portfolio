@@ -1,3 +1,5 @@
+import '../email-template.js';
+import {emailAssets} from './email-assets.js';
 // Server-only Gmail transport. Never import into a browser asset.
 const scopes=['https://www.googleapis.com/auth/gmail.send','https://www.googleapis.com/auth/gmail.readonly','https://www.googleapis.com/auth/gmail.settings.basic'];
 export {scopes};
@@ -51,6 +53,20 @@ export async function sendGmail(env,row){
  const p=work?.[0]?.projects?.find(p=>p.id===row.project_id);
  const draft=(p?.outreachDraft||'').split('\n');
  if(!p||['Do not contact','Not interested'].includes(p.stage)||p.email!==row.recipient||draft[0].replace(/^Subject:\s*/i,'').trim()!==row.subject||draft.slice(1).join('\n').trim()!==row.body||!['demo','facts','contact','eligibility','email'].every(k=>p.checks?.[k]))throw fail('Saved draft, recipient or review status changed. Sending stopped.',409);
+ const rendered=globalThis.StudioEmail.render(p,p.outreachDraft||'');
+ if((row.html_body||'')!==rendered.html||(row.presentation&&(row.presentation.version!==1||JSON.stringify(globalThis.StudioEmail.settings({mailPresentation:row.presentation,demo:row.presentation.demo}))!==JSON.stringify(rendered.config))))throw fail('Formatted email changed after approval. Sending stopped.',409);
+ const inline=[];
+ if(rendered.html){
+  for(const asset of rendered.assets){
+   const expected=emailAssets[asset.file];if(!expected)throw fail('Unknown email asset.');
+   const r=await fetch('https://dmwebservices.co.uk/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
+   if(!r.ok||Number(r.headers.get('Content-Length')||0)>500000)throw fail('Email image unavailable. Deploy the public email assets before sending.');
+   const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>500000)throw fail('Email image too large.');
+   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
+   if(hash!==expected.sha256)throw fail('Email image changed since this template was prepared. Sending stopped.');
+   inline.push({...asset,bytes});
+  }
+ }
  const replies=await db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(row.owner_id)+'&project_id=eq.'+encodeURIComponent(row.project_id)+'&direction=eq.inbound&limit=1');
  if(replies.length)throw fail('Reply recorded. Review the conversation in Gmail before contacting again.',409);
  const claim=await db(env,'rpc/studio_claim_mail',{method:'POST',body:{mail_id:row.id}});if(!claim?.length)throw fail('Email already claimed. Check status before doing anything else.',409);
@@ -59,7 +75,17 @@ export async function sendGmail(env,row){
   await update(env,row.id,{message_id:messageId,detail:'Gmail send attempt started. Do not resend.'});
   if(/[\r\n]/.test(row.subject+row.recipient+cfg.sender)||!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(row.recipient))throw Error('Invalid mail headers');
   const subject=btoa(String.fromCharCode(...new TextEncoder().encode(row.subject)));
-  const raw='From: '+cfg.sender+'\r\nTo: '+row.recipient+'\r\nSubject: =?UTF-8?B?'+subject+'?=\r\nMessage-ID: '+messageId+'\r\nDate: '+new Date().toUTCString()+'\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+btoa(String.fromCharCode(...new TextEncoder().encode(row.body))).match(/.{1,76}/g).join('\r\n');
+  const encode=value=>{const bytes=typeof value==='string'?new TextEncoder().encode(value):value;let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary).match(/.{1,76}/g)?.join('\r\n')||'';};
+  const headers='From: '+cfg.sender+'\r\nTo: '+row.recipient+'\r\nSubject: =?UTF-8?B?'+subject+'?=\r\nMessage-ID: '+messageId+'\r\nDate: '+new Date().toUTCString()+'\r\nMIME-Version: 1.0\r\n';
+  let raw;
+  if(!row.html_body)raw=headers+'Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+encode(row.body);
+  else{
+   const related='related_'+crypto.randomUUID(),alternative='alternative_'+crypto.randomUUID();
+   const part=(type,value)=>'Content-Type: '+type+'; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+encode(value)+'\r\n';
+   raw=headers+'Content-Type: multipart/related; boundary="'+related+'"\r\n\r\n--'+related+'\r\nContent-Type: multipart/alternative; boundary="'+alternative+'"\r\n\r\n--'+alternative+'\r\n'+part('text/plain',row.body)+'--'+alternative+'\r\n'+part('text/html',row.html_body)+'--'+alternative+'--\r\n';
+   for(const asset of inline)raw+='--'+related+'\r\nContent-Type: '+asset.type+'\r\nContent-ID: <'+asset.cid+'>\r\nContent-Disposition: inline; filename="'+asset.file+'"\r\nContent-Transfer-Encoding: base64\r\n\r\n'+encode(asset.bytes)+'\r\n';
+   raw+='--'+related+'--\r\n';
+  }
   const result=await gmail(token,'messages/send',{method:'POST',body:{raw:b64(new TextEncoder().encode(raw))}});
   if(!result.id||!result.threadId)throw Error('Missing send receipt');
   await update(env,row.id,{status:'accepted',accepted_at:new Date().toISOString(),gmail_id:result.id,thread_id:result.threadId,detail:'Gmail accepted the send request. This is not proof of delivery.'});

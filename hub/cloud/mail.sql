@@ -17,6 +17,8 @@ create table if not exists public.studio_mail (
  unique(owner_id,dedupe)
 );
 create unique index if not exists studio_one_first_contact on public.studio_mail(owner_id,project_id) where direction='outbound' and status <> 'failed';
+alter table public.studio_mail add column if not exists html_body text;
+alter table public.studio_mail add column if not exists presentation jsonb;
 alter table public.studio_mail add column if not exists accepted_at timestamptz;
 alter table public.studio_mail add column if not exists gmail_checked_at timestamptz;
 alter table public.studio_mail add column if not exists gmail_id text;

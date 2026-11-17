@@ -2,7 +2,8 @@ import fs from 'node:fs';import assert from 'node:assert/strict';import {webcryp
 globalThis.crypto??=webcrypto;
 const moduleURL='data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/cloud/ai-service.js')).toString('base64');
 const transport='data:text/javascript;base64,'+Buffer.from("export async function sendGmail(){return {status:'accepted'};}").toString('base64');
-const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL).replace('../../hub/cloud/gmail-service.js',transport);
+await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/email-template.js')).toString('base64'));
+const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL).replace('../../hub/cloud/gmail-service.js',transport).replace("import '../../hub/email-template.js';",'');
 const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public',GMAIL_ENABLED:'true'};
 const p={id:'p',email:'test@example.com',stage:'Demo ready',outreachDraft:'Subject: Hello\n\nA reviewed email.',checks:{demo:true,facts:true,contact:true,eligibility:true,email:true}};
@@ -17,3 +18,10 @@ for(const status of ['queued','sending','uncertain','accepted']){mock([...auth()
 mock([...auth(),[{owner_id:'owner',projects:[p]}],[{direction:'inbound',status:'received'}]]);assert.equal((await onRequest({request:request(),env})).status,409);
 p.stage='Do not contact';mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request(),env})).status,403);
 console.log('PASS: mail same-origin, saved/reviewed snapshot, duplicate/pending/replied/opt-out guards. All external calls mocked; no mail sent.');
+// Branded emails store a server-rendered snapshot, never browser-supplied HTML.
+p.stage='Demo ready';p.name='Shibiao Fastener';p.demo='/demos/lfastener/';p.mailPresentation={format:'branded',postalAddress:'Test business address'};p.outreachDraft=globalThis.StudioEmail.introduction(p,p.mailPresentation.postalAddress);
+const snapshot=globalThis.StudioEmail.render(p,p.outreachDraft);
+mock([...auth(),[{owner_id:'owner',projects:[p]}],[],[{id:'new-formatted'}]]);assert.equal((await onRequest({request:request({...input(),presentation:snapshot.config,html:'<script>browser supplied</script>'}),env})).status,200);const stored=JSON.parse(calls.at(-1).o.body);assert.equal(stored.html_body,snapshot.html);assert(!stored.html_body.includes('<script>'));assert.equal(stored.presentation.format,'branded');
+mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request({...input(),presentation:{...snapshot.config,postalAddress:'Changed'}}),env})).status,409);
+const queuedRow={...stored,id:'queued-retry'};mock([...auth(),[{owner_id:'owner',projects:[p]}],[queuedRow]]);assert.equal((await onRequest({request:request({...input(),presentation:snapshot.config,retry:queuedRow.id}),env})).status,200);assert(!calls.some(c=>c.o.method==='POST'&&c.u.endsWith('/studio_mail')));
+console.log('PASS: formatted snapshot created server-side, appearance drift rejected, exact queued-only retry requires fresh approval.');

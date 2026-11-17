@@ -1,0 +1,10 @@
+const fs=require('node:fs'),assert=require('node:assert/strict');require('../hub/email-template.js');
+const t=globalThis.StudioEmail,p={name:'Shibiao Fastener',demo:'/demos/lfastener/',mailPresentation:{format:'branded',postalAddress:'Test business address, UK'}};
+const text=t.introduction(p,p.mailPresentation.postalAddress),r=t.render(p,text);
+assert(r.html.includes('cid:studio-logo'));assert(r.html.includes('cid:studio-demo'));assert(r.html.includes('View the website concept'));assert.equal(r.assets.length,2);assert(r.html.includes('not the official Shibiao'));assert(!r.html.includes('<script'));assert(!r.html.includes('src="https:'));assert(r.body.includes('Test business address'));assert(r.body.includes('tier=catalogue'));assert(r.body.includes('won’t follow up'));assert.equal(r.html,t.render(p,text).html);
+assert.throws(()=>t.render({...p,mailPresentation:{format:'branded'}},text));assert.throws(()=>t.render(p,text.replace('Test business address, UK','')));
+const hostile={...p,name:'<script>bad()</script>"',contact:'<img src=x onerror=bad()>'};const safe=t.render(hostile,t.introduction(hostile,p.mailPresentation.postalAddress));assert(!safe.html.includes('<script>'));assert(!safe.html.includes('<img src=x'));
+const unknown={...p,demo:'https://evil.example/demos/lfastener/'};const noImage=t.render(unknown,t.introduction(unknown,p.mailPresentation.postalAddress));assert(!noImage.assets.some(a=>a.cid==='studio-demo'));
+const plain=t.render({...p,mailPresentation:null},'Subject: Hello\n\nOriginal text');assert.equal(plain.html,'');assert.equal(plain.body,'Original text');
+for(const asset of r.assets)assert(fs.existsSync('images/email/'+asset.file));
+console.log('PASS: deterministic branded rendering, signature logo, curated screenshot, visible fallback, postal guard, escaping, no remote image/tracker and unchanged plain text.');
