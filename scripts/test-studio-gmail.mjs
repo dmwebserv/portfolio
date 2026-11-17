@@ -1,10 +1,10 @@
 // No live Google calls, authorisation or mailbox used.
 import fs from 'node:fs';import assert from 'node:assert/strict';import{webcrypto}from'node:crypto';globalThis.crypto??=webcrypto;
-const url=path=>'data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path)).toString('base64');
+const url=path=>{let source=fs.readFileSync(path,'utf8');if(path==='hub/cloud/gmail-service.js')source=source.replace('../email-template.js',url('hub/email-template.js')).replace('./email-assets.js',url('hub/cloud/email-assets.js'));return 'data:text/javascript;base64,'+Buffer.from(source).toString('base64');};
 const g=await import(url('hub/cloud/gmail-service.js'));
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public-test',SUPABASE_SERVICE_ROLE_KEY:'server-test',MAIL_TOKEN_KEY:Buffer.alloc(32,9).toString('base64'),GOOGLE_CLIENT_ID:'client',GOOGLE_CLIENT_SECRET:'server-only',GOOGLE_MAILBOX_EMAIL:'project@gmail.com',GOOGLE_SEND_AS_EMAIL:'danny@example.com',STUDIO_ORIGIN:'https://studio.example',GMAIL_ENABLED:'true'};
 const cipher=await g.seal(env,{refresh_token:'private-refresh-token'});assert(!cipher.includes('private-refresh-token'));assert.equal((await g.open(env,cipher)).refresh_token,'private-refresh-token');await assert.rejects(()=>g.open(env,cipher.slice(0,-3)+'bad'));
-let calls=[];function mock(replies){calls=[];globalThis.fetch=async(u,o={})=>{calls.push({u,o});assert(replies.length,'Unexpected network request');const [status,data]=replies.shift();return new Response(JSON.stringify(data),{status});};}
+let calls=[];function mock(replies){calls=[];globalThis.fetch=async(u,o={})=>{calls.push({u,o});assert(replies.length,'Unexpected network request');const [status,data]=replies.shift();return new Response(Buffer.isBuffer(data)?data:JSON.stringify(data),{status});};}
 const row={id:'message',owner_id:'owner',project_id:'p',recipient:'prospect@example.com',subject:'An idea — £295',body:'Plain text only'};
 const project={id:'p',email:row.recipient,stage:'Demo ready',outreachDraft:'Subject: '+row.subject+'\n\n'+row.body,checks:{demo:true,facts:true,contact:true,eligibility:true,email:true}};
 const preflight=()=>[[200,[{token_cipher:cipher,mailbox:'project@gmail.com'}]],[200,{access_token:'short-lived'}],[200,{emailAddress:'project@gmail.com'}],[200,{sendAs:[{sendAsEmail:'danny@example.com',verificationStatus:'accepted'}]}],[200,[{projects:[project]}]],[200,[]],[200,[row]]];
@@ -35,3 +35,22 @@ const modern={...env,SUPABASE_SERVICE_ROLE_KEY:undefined,SUPABASE_SECRET_KEY:'sb
 g.config(modern);mock([[200,[]]]);await g.db(modern,'studio_owners?select=user_id');assert.equal(calls[0].o.headers.apikey,'sb_secret_test_only');assert(!('Authorization' in calls[0].o.headers));
 mock([[200,[]]]);await g.db(env,'studio_owners?select=user_id');assert.equal(calls[0].o.headers.Authorization,'Bearer server-test');
 console.log('PASS: modern secret API header and legacy fallback. Fake keys only.');
+
+// Actual multipart MIME contains exact saved HTML, fallback and embedded curated images.
+project.demo='/demos/lfastener/';project.name='Shibiao Fastener';project.mailPresentation={format:'branded',postalAddress:'Test business postal address'};
+project.outreachDraft=globalThis.StudioEmail.introduction(project,project.mailPresentation.postalAddress);
+const rendered=globalThis.StudioEmail.render(project,project.outreachDraft);Object.assign(row,{subject:rendered.subject,body:rendered.body,html_body:rendered.html,presentation:rendered.config});
+mock([...preflight().slice(0,5),...rendered.assets.map(a=>[200,fs.readFileSync('images/email/'+a.file)]),...preflight().slice(5),[200,[row]],[200,{id:'formatted-id',threadId:'formatted-thread'}],[200,[row]],[200,{payload:{headers:[]}}]]);
+assert.equal((await g.sendGmail(env,row)).status,'accepted');const formatted=calls.find(c=>c.u.endsWith('/messages/send'));const mime=Buffer.from(JSON.parse(formatted.o.body).raw,'base64url').toString('utf8');
+const {spawnSync}=await import('node:child_process');const parsed=spawnSync('python3',['-c',`import sys,email,email.policy
+m=email.message_from_bytes(sys.stdin.buffer.read(),policy=email.policy.default)
+assert m.get_content_type()=='multipart/related'
+parts=list(m.walk())
+assert any(p.get_content_type()=='multipart/alternative' for p in parts)
+assert any(p.get_content_type()=='text/plain' and 'Test business postal address' in p.get_content() for p in parts)
+assert any(p.get_content_type()=='text/html' and 'cid:studio-demo' in p.get_content() for p in parts)
+assert {str(p['Content-ID']) for p in parts if p['Content-ID']}=={'<studio-logo>','<studio-demo>'}
+assert len([p for p in parts if p.get_content_maintype()=='image'])==2
+`],{input:mime,encoding:'utf8'});assert.equal(parsed.status,0,parsed.stderr);
+project.mailPresentation.postalAddress='Changed after review';mock(preflight().slice(0,5));await assert.rejects(()=>g.sendGmail(env,row));assert(!calls.some(c=>c.u.endsWith('/messages/send')));
+console.log('PASS: multipart/related + alternative MIME parsed independently, inline logo/screenshot, exact HTML/plain fallback and changed-approval rejection. No live email.');
