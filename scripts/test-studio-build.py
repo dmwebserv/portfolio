@@ -35,3 +35,8 @@ for name in ['index.html','login/index.html']:
 assert 'studio-booting' in (out/'index.html').read_text()
 assert not list(out.glob('*service-worker*')), 'No private offline cache is configured'
 print('PASS: iOS standalone metadata, favicon/touch icons and manifest sizes; auth-first startup shell.')
+
+for name in ['workspace-ui.js','mailbox.js']:
+    assert (out/name).exists()
+    assert 'src="'+name+'"' in (out/'index.html').read_text()
+print('PASS: focused project sheets and mailbox modules are included in the deployed shell.')
