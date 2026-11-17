@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '*/10 * * * *'
-permissions: {}
+permissions:
+  contents: read
 concurrency:
   group: studio-mail
   cancel-in-progress: false
@@ -13,22 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Request reply sync (no mailbox credentials on GitHub)
         env:
           SYNC_URL: ${{ secrets.STUDIO_MAIL_SYNC_URL }}
           SYNC_TOKEN: ${{ secrets.STUDIO_MAIL_SYNC_TOKEN }}
-        run: |
-          python3 - <<'PY'
-          import os, urllib.request, urllib.parse
-          url=os.environ.get('SYNC_URL','')
-          parsed=urllib.parse.urlsplit(url)
-          if parsed.scheme!='https' or parsed.path!='/api/mail-sync' or parsed.username or parsed.query or parsed.fragment:
-              raise SystemExit('Invalid sync URL configuration')
-          try:
-              req=urllib.request.Request(url,method='POST',headers={'Authorization':'Bearer '+os.environ['SYNC_TOKEN']},data=b'')
-              with urllib.request.urlopen(req,timeout=140) as r:
-                  if r.status!=200: raise RuntimeError()
-              print('Reply sync completed.')
-          except Exception:
-              raise SystemExit('Reply sync failed. Check Gmail connection in Studio. No email send is performed by this job.')
-          PY
+        run: python3 scripts/request-mail-sync.py

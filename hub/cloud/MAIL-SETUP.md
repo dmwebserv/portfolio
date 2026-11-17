@@ -88,3 +88,7 @@ A Cloudflare scheduled Worker could replace this scheduler later. No Pub/Sub pus
 - Keep the IONOS mailbox and Gmail send-as/forwarding configuration unchanged. No IONOS password is needed by Studio.
 - Define mail retention and deletion/export procedures and update your privacy information before real outreach. Bodies in Supabase are not part of the browser workspace export; Gmail remains the primary mailbox and source of truth. Retain minimal opt-out records. A dedicated account reduces accidental exposure, not the need for privacy safeguards.
 - Google Drive is a separate future integration, not enabled or requested here.
+
+## Safe scheduler diagnostics
+
+The scheduled trigger now reports an HTTP status plus a fixed allowlisted diagnostic, never raw response bodies, URLs, tokens or exception payloads. Redirects are rejected rather than forwarding credentials. HTTP 200 HTML/login pages are not treated as success. A 403 without an endpoint diagnostic may be from Cloudflare Access/WAF or an older endpoint deployment; inspect the matching Cloudflare security event before changing any rule. Do not disable site-wide security or regenerate keys speculatively. `SYNC_UNAUTHORIZED` specifically means the endpoint rejected the bearer token. `SYNC_DATABASE_FAILED` and `SYNC_GMAIL_FAILED` mean authentication passed and identify the later failing stage. New endpoint codes require the updated Production deployment; the trigger still prints HTTP status for older deployments.
