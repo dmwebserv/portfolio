@@ -54,7 +54,7 @@ export async function sendGmail(env,row){
  const draft=(p?.outreachDraft||'').split('\n');
  if(!p||['Do not contact','Not interested'].includes(p.stage)||p.email!==row.recipient||draft[0].replace(/^Subject:\s*/i,'').trim()!==row.subject||draft.slice(1).join('\n').trim()!==row.body||!['demo','facts','contact','eligibility','email'].every(k=>p.checks?.[k]))throw fail('Saved draft, recipient or review status changed. Sending stopped.',409);
  const rendered=globalThis.StudioEmail.render(p,p.outreachDraft||'');
- if((row.html_body||'')!==rendered.html||(row.presentation&&(row.presentation.version!==1||JSON.stringify(globalThis.StudioEmail.settings({mailPresentation:row.presentation,demo:row.presentation.demo}))!==JSON.stringify(rendered.config))))throw fail('Formatted email changed after approval. Sending stopped.',409);
+ if((row.html_body||'')!==rendered.html||(row.presentation&&(row.presentation.version!==rendered.config.version||JSON.stringify(globalThis.StudioEmail.settings({mailPresentation:row.presentation,demo:row.presentation.demo}))!==JSON.stringify(rendered.config))))throw fail('Formatted email changed after approval. Sending stopped.',409);
  const inline=[];
  if(rendered.html){
   for(const asset of rendered.assets){
