@@ -1,0 +1,3 @@
+company,website,public_contact,contact_verified,eligibility_checked,demo_path,status,first_sent,followup_due,followup_sent,last_reply,next_action,opted_out,retention_review
+Shibiao Fastener,http://lfastener.com/,,no,no,/demos/lfastener/,draft,,,,,Verify contact and deploy before sending,no,
+Jiangsu Tianyu Fibre Co. Ltd.,https://tyfibre.com/,tyxw@tyfibre.com,no,no,/demos/tyfibre/,draft,,,,,Reverify contact and review demo before sending,no,

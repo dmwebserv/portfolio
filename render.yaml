@@ -1,0 +1,25 @@
+# Optional paid private-app deployment. Review the provider's current price
+# before applying this blueprint. Does not deploy the public portfolio.
+services:
+  - type: web
+    name: dm-studio
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./hub/server/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: HUB_SESSION_SECRET
+        generateValue: true
+      - key: HUB_PASSWORD_HASH
+        sync: false
+      - key: HUB_DEMO_MODE
+        value: "0"
+      - key: HUB_DATA_DIR
+        value: /data/studio
+    disk:
+      name: studio-data
+      mountPath: /data
+      sizeGB: 1

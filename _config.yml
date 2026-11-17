@@ -1,0 +1,5 @@
+# Operational templates and checks are versioned but not part of the public site.
+exclude:
+  - operations
+  - scripts
+  - hub
