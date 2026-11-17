@@ -113,3 +113,13 @@ This improves observability and safe recovery, not a claim that any particular l
 New branded previews use `shibiao-v2.jpg` and `tianyu-v2.jpg`. The v1 files and their allowlisted hashes remain unchanged for stored historical messages. Save appearance and re-review an unsent branded draft after this upgrade; the server rejects old visual approvals. Old queued branded drafts must be cancelled and prepared again (never automatically resent).
 
 To refresh local supplier screenshots, start a static server on port 8000 and run `scripts/capture-supplier-previews.cjs` with Playwright/Chromium available. It captures catalogue, showcase, mobile and email images and updates the email hash manifest. Once any image version has been used in real mail, create a new version rather than overwriting that version.
+
+### Diagnosing preparation without resending
+
+Email & mailbox now orders the draft, design/preview, then delivery controls and readable stored records. Draft and appearance can be saved together; the final email review is still required after editing. Send/readiness requests wait for queued workspace saves to finish.
+
+**Check send readiness · does not send** runs the same server preparation against the saved, reviewed email. It may refresh the OAuth access token and make read-only Gmail/database/image calls, but never inserts/claims mail or calls Gmail send. It can diagnose a prospect with an existing queued record without submitting it again. It does not repair, cancel or retry that historical record. Transport checks passing do not override a pending/uncertain/accepted record or authorise another send.
+
+Preparation errors now identify the failing phase (`account`, `sender`, `workspace`, `template`, `images`, `replies`, or `claim`) without returning raw provider exceptions or tokens. Older records with the generic “Preparation could not complete” message cannot retrospectively identify their original failing phase. Check Gmail Sent and the stored state before any user-approved retry; do not create another prospect to bypass the guard.
+
+On Cloudflare Pages the transport loads immutable email image bytes from the deployment's `ASSETS` binding, not the public domain. Existing size/hash verification remains enforced. Non-Pages test/server environments retain the public-domain fallback. New first-contact requests complete preparation before inserting a queue record, so connection/image failures no longer leave a new queued item. No migration or new secret is required.

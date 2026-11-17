@@ -45,31 +45,44 @@ export async function verifySender(env,token){
  return profile;
 }
 export async function update(env,id,body){return db(env,'studio_mail?id=eq.'+encodeURIComponent(id),{method:'PATCH',body:{...body,updated_at:new Date().toISOString()}});}
-export async function sendGmail(env,row){
+// Only fixed stage labels and deliberately public messages leave the transport.
+async function preparation(stage,task){
+ try{return await task();}catch(error){
+  const hints={account:'Could not unlock or refresh the Gmail connection. Reconnect Gmail if this persists.',sender:'Could not verify the Gmail account and From address.',workspace:'Could not read the saved prospect from the mail database.',template:'Could not render the saved email. Check the draft and postal details.',images:'Could not load or verify the embedded email images from this deployment.',replies:'Could not check for recorded replies. Sending remains blocked.',claim:'Could not confirm the send lock. Refresh stored status; do not submit another copy.'};
+  throw fail('['+stage+'] '+(error.status?error.message:hints[stage]||'Preparation could not complete.'),error.status||503);
+ }
+}
+export async function prepareGmail(env,row){
  if(env.GMAIL_ENABLED!=='true')throw fail('Gmail sending is disabled. Complete setup and controlled testing first.');
  // Refresh/verify BEFORE claim. Failures here cannot have sent a message.
- const {token}=await account(env,row.owner_id);await verifySender(env,token);
- const work=await db(env,'studio_workspaces?owner_id=eq.'+encodeURIComponent(row.owner_id)+'&select=projects');
+ const {token}=await preparation('account',()=>account(env,row.owner_id));await preparation('sender',()=>verifySender(env,token));
+ const work=await preparation('workspace',()=>db(env,'studio_workspaces?owner_id=eq.'+encodeURIComponent(row.owner_id)+'&select=projects'));
  const p=work?.[0]?.projects?.find(p=>p.id===row.project_id);
  const draft=(p?.outreachDraft||'').split('\n');
  if(!p||['Do not contact','Not interested'].includes(p.stage)||p.email!==row.recipient||draft[0].replace(/^Subject:\s*/i,'').trim()!==row.subject||draft.slice(1).join('\n').trim()!==row.body||!['demo','facts','contact','eligibility','email'].every(k=>p.checks?.[k]))throw fail('Saved draft, recipient or review status changed. Sending stopped.',409);
- const rendered=globalThis.StudioEmail.render(p,p.outreachDraft||'');
+ const rendered=await preparation('template',async()=>globalThis.StudioEmail.render(p,p.outreachDraft||''));
  if((row.html_body||'')!==rendered.html||(row.presentation&&(row.presentation.version!==rendered.config.version||JSON.stringify(globalThis.StudioEmail.settings({mailPresentation:row.presentation,demo:row.presentation.demo}))!==JSON.stringify(rendered.config))))throw fail('Formatted email changed after approval. Sending stopped.',409);
  const inline=[];
- if(rendered.html){
+ await preparation('images',async()=>{if(rendered.html){
   for(const asset of rendered.assets){
    const expected=emailAssets[asset.file];if(!expected)throw fail('Unknown email asset.');
-   const r=await fetch('https://dmwebservices.co.uk/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
+   // Studio already deploys these immutable files; avoid a cross-domain fetch/redirect.
+   const assetRequest=new Request(config(env).origin+'/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
+   const r=env.ASSETS?.fetch?await env.ASSETS.fetch(assetRequest):await fetch('https://dmwebservices.co.uk/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
    if(!r.ok||Number(r.headers.get('Content-Length')||0)>500000)throw fail('Email image unavailable. Deploy the public email assets before sending.');
    const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>500000)throw fail('Email image too large.');
    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
    if(hash!==expected.sha256)throw fail('Email image changed since this template was prepared. Sending stopped.');
    inline.push({...asset,bytes});
   }
- }
- const replies=await db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(row.owner_id)+'&project_id=eq.'+encodeURIComponent(row.project_id)+'&direction=eq.inbound&limit=1');
+ }});
+ const replies=await preparation('replies',()=>db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(row.owner_id)+'&project_id=eq.'+encodeURIComponent(row.project_id)+'&direction=eq.inbound&limit=1'));
  if(replies.length)throw fail('Reply recorded. Review the conversation in Gmail before contacting again.',409);
- const claim=await db(env,'rpc/studio_claim_mail',{method:'POST',body:{mail_id:row.id}});if(!claim?.length)throw fail('Email already claimed. Check status before doing anything else.',409);
+ return {token,inline};
+}
+export async function sendGmail(env,row,prepared){
+ const {token,inline}=prepared||await prepareGmail(env,row);
+ const claim=await preparation('claim',()=>db(env,'rpc/studio_claim_mail',{method:'POST',body:{mail_id:row.id}}));if(!claim?.length)throw fail('Email already claimed. Check status before doing anything else.',409);
  const cfg=config(env),messageId='<'+crypto.randomUUID()+'@'+cfg.sender.split('@')[1]+'>';
  try{
   await update(env,row.id,{message_id:messageId,detail:'Gmail send attempt started. Do not resend.'});

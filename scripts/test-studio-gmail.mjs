@@ -57,3 +57,13 @@ console.log('PASS: multipart/related + alternative MIME parsed independently, in
 mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Object.assign(Error('Email image unavailable.'),{status:503}));assert(calls[0].u.includes('status=eq.queued'));assert(JSON.parse(calls[0].o.body).detail.includes('image unavailable'));
 mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Error('private-provider-token'));assert(!calls[0].o.body.includes('private-provider-token'));
 console.log('PASS: conditional queued-error persistence, no overwriting claimed records and no unknown provider payload leakage.');
+
+// Preparation alone never claims or submits. ASSETS serves exact deploy-local bytes.
+project.mailPresentation.postalAddress='Test business postal address';let assetCalls=[];
+const assetEnv={...env,ASSETS:{fetch:async request=>{assetCalls.push(request.url);return new Response(fs.readFileSync('images/email/'+new URL(request.url).pathname.split('/').at(-1)));}}};
+mock([...preflight().slice(0,5),[200,[]]]);const prepared=await g.prepareGmail(assetEnv,row);assert.equal(prepared.inline.length,2);assert.equal(assetCalls.length,2);assert(assetCalls.every(u=>u.startsWith('https://studio.example/images/email/')));assert(!calls.some(c=>c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
+// Unknown exceptions identify a safe preparation stage, never raw provider data.
+mock([...preflight().slice(0,5)]);const broken={...env,ASSETS:{fetch:async()=>{throw Error('private-provider-token');}}};
+await assert.rejects(()=>g.prepareGmail(broken,row),e=>e.status===503&&e.message.includes('[images]')&&!e.message.includes('private-provider-token'));assert(!calls.some(c=>c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
+mock([[200,[{token_cipher:'bad.cipher',mailbox:'project@gmail.com'}]]]);await assert.rejects(()=>g.prepareGmail(env,row),e=>e.message.includes('[account]'));assert.equal(calls.length,1);
+console.log('PASS: deploy-local asset integrity and no-send preparation; safe image/account diagnostics before any claim.');
