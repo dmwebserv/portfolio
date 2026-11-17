@@ -28,13 +28,13 @@ async function bootServer(){
  $('#content').innerHTML='<div class="panel empty">Loading your workspace…</div>';
  $('#add').disabled=true;
  try{
-  let data;if(CLOUD){data=await window.StudioCloud.load();}else{const r=await fetch('/api/workspace');if(r.status===401){location.assign('/login');return;}if(!r.ok)throw Error('Unable to load workspace');data=await r.json();}projects=validate(data.projects);serverVersion=data.version;serverReady=true;
+  let data;if(CLOUD){data=await window.StudioCloud.load();}else{const r=await fetch('/api/workspace');if(r.status===401){location.assign(CLOUD?'/login/':'/login');return;}if(!r.ok)throw Error('Unable to load workspace');data=await r.json();}projects=validate(data.projects);serverVersion=data.version;serverReady=true;
   if(!projects.length&&serverVersion===0){projects=structuredClone(seeds);save();}
   document.querySelector('.local-dot').textContent=window.HUB_CONFIG.demo?'Shared sample server':'Server workspace';
   document.querySelector('.sidebar-bottom p').textContent=window.HUB_CONFIG.demo?'Public demo. Do not enter private data.':'Saved to this server. Export backups regularly.';
-  const out=document.createElement('button');out.textContent='Sign out';out.onclick=async()=>{await saveChain;if(syncBlocked&&!confirm('There are unsaved edits. Export first if needed. Sign out anyway?'))return;if(CLOUD){await window.StudioCloud.logout();}else{await fetch('/api/logout',{method:'POST',headers:{'Content-Type':'application/json','X-Studio-Request':'1'},body:'{}'});}location.assign('/login');};if(!window.HUB_CONFIG.demo)document.querySelector('.sidebar-bottom').prepend(out);
+  const out=document.createElement('button');out.textContent='Sign out';out.onclick=async()=>{await saveChain;if(syncBlocked&&!confirm('There are unsaved edits. Export first if needed. Sign out anyway?'))return;if(CLOUD){await window.StudioCloud.logout();}else{await fetch('/api/logout',{method:'POST',headers:{'Content-Type':'application/json','X-Studio-Request':'1'},body:'{}'});}location.assign(CLOUD?'/login/':'/login');};if(!window.HUB_CONFIG.demo)document.querySelector('.sidebar-bottom').prepend(out);
   render();setSync(window.HUB_CONFIG.demo?'DEMO SERVER · public sample data':'Connected · server storage');$('#add').disabled=false;
- }catch(err){if(CLOUD&&[400,401].includes(err.status)){location.assign('/login');return;}$('#content').innerHTML='<div class="notice">Could not load server data. No local fallback was loaded. Reload to try again.</div>';toast(err.message);}
+ }catch(err){if(CLOUD&&[400,401].includes(err.status)){location.assign(CLOUD?'/login/':'/login');return;}$('#content').innerHTML='<div class="notice">Could not load server data. No local fallback was loaded. Reload to try again.</div>';toast(err.message);}
 }
 window.addEventListener('beforeunload',e=>{if(SERVER&&syncBlocked){e.preventDefault();e.returnValue='Export unsaved edits before leaving.';}});
 function log(p,msg){p.activity.unshift(new Date().toLocaleDateString('en-GB')+' · '+msg);p.activity=p.activity.slice(0,100);}

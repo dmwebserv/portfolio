@@ -45,7 +45,10 @@ for name in ['uk-export.html','uk-export-terms.html','terms.html','refunds.html'
     shutil.copy2(root/name,out/name)
 shutil.copytree(root/'images',out/'images')
 (out/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
-(out/'_redirects').write_text('/login /login.html 200\n')
+# Use a real directory index: Pages canonicalises .html paths, so a rewrite
+# from /login to /login.html can loop back to /login. No rewrite needed.
+(out/'login').mkdir()
+(out/'login.html').replace(out/'login/index.html')
 (out/'_headers').write_text('/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: no-referrer\n  Cache-Control: no-store\n  Content-Security-Policy: default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; connect-src \'self\' '+url+'; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://formsubmit.co\n')
 (out/'404.html').write_text('<!doctype html><title>Not found</title><a href="/">Return to Studio</a>')
 print('Built dist/studio. Publish ONLY this directory. Public shell/templates; private workspace protected by Supabase RLS.')
