@@ -1,7 +1,7 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';import {webcrypto} from 'node:crypto';
 globalThis.crypto??=webcrypto;
 const moduleURL='data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/cloud/ai-service.js')).toString('base64');
-const transport='data:text/javascript;base64,'+Buffer.from("export async function sendGmail(){return {status:'accepted'};} export async function recordQueuedError(){}").toString('base64');
+const transport='data:text/javascript;base64,'+Buffer.from("export async function prepareGmail(){if(globalThis.__preflightFailure)throw Object.assign(Error('[images] Could not load the embedded images.'),{status:503});return {};} export async function sendGmail(){return {status:'accepted'};} export async function recordQueuedError(){}").toString('base64');
 await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/email-template.js')).toString('base64'));
 const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL).replace('../../hub/cloud/gmail-service.js',transport).replace("import '../../hub/email-template.js';",'');
 const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
@@ -29,3 +29,11 @@ console.log('PASS: formatted snapshot created server-side, appearance drift reje
 // The central mailbox uses the same authenticated owner/RLS access and bounded projection.
 mock([...auth(),[]]);const mailbox=await onRequest({request:new Request('https://studio.example/api/mail?scope=mailbox',{headers:{Authorization:'Bearer fake-token'}}),env});assert.equal(mailbox.status,200);assert.deepEqual((await mailbox.json()).messages,[]);assert(calls.at(-1).u.includes('limit=200'));assert(calls.at(-1).u.includes('select=id,project_id'));assert(!calls.at(-1).u.includes('select=*'));
 console.log('PASS: owner-authenticated mailbox query is bounded, excludes HTML and does not send mail.');
+
+// Dry-run diagnoses an existing queued draft without inserting, claiming or sending.
+mock([...auth(),[{owner_id:'owner',projects:[p]}],[{id:'old',direction:'outbound',status:'queued'}]]);
+const check=await onRequest({request:request({project:'p',preflight:true}),env});assert.equal(check.status,200);assert.equal((await check.json()).ready,true);assert(!calls.some(c=>c.o.method==='POST'));
+// New sends fail preflight BEFORE creating another durable queue record.
+globalThis.__preflightFailure=true;mock([...auth(),[{owner_id:'owner',projects:[p]}],[]]);
+const stopped=await onRequest({request:request({...input(),presentation:globalThis.StudioEmail.settings(p)}),env});assert.equal(stopped.status,503);assert((await stopped.json()).error.includes('[images]'));assert(!calls.some(c=>c.u.endsWith('/rest/v1/studio_mail')&&c.o.method==='POST'));delete globalThis.__preflightFailure;
+console.log('PASS: safe readiness check for queued records, and preparation failures create no new queued send.');

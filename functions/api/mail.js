@@ -1,6 +1,6 @@
 import {owner,json} from '../../hub/cloud/ai-service.js';
 import '../../hub/email-template.js';
-import {sendGmail,recordQueuedError} from '../../hub/cloud/gmail-service.js';
+import {sendGmail,prepareGmail,recordQueuedError} from '../../hub/cloud/gmail-service.js';
 export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))return json({error:'Method not allowed'},405);
@@ -21,13 +21,13 @@ export async function onRequest({request,env}){
    return json({cancelled:true});
   }
   if(env.GMAIL_ENABLED!=='true')return json({error:'Gmail sending is disabled. Connect and enable Gmail first.'},503);
-  if(body.approved!==true||typeof body.project!=='string')return json({error:'Explicit approval required'},400);
+  if((body.approved!==true&&body.preflight!==true)||typeof body.project!=='string')return json({error:'Explicit approval required'},400);
   const workspaces=await get('studio_workspaces?select=owner_id,projects');const workspace=workspaces[0];const p=workspace?.projects?.find(x=>x.id===body.project);
   if(!p)return json({error:'Save the project first'},400);
   if(['Do not contact','Not interested'].includes(p.stage))return json({error:'Outreach blocked'},403);
   if(!['demo','facts','contact','eligibility','email'].every(k=>p.checks?.[k]))return json({error:'Save the final draft and complete all five review checks first.'},400);
   const text=p.outreachDraft||'';
-  if(text!==body.draft)return json({error:'Draft differs from the saved, reviewed version. Save it, review it and try again.'},409);
+  if(!body.preflight&&text!==body.draft)return json({error:'Draft differs from the saved, reviewed version. Save it, review it and try again.'},409);
   if(!/^[^\s@<>\r\n]+@[^\s@<>\r\n]+\.[^\s@<>\r\n]+$/.test(p.email||'')||!text.trim()||/\[[^\]]+\]/.test(text))return json({error:'Verify the recipient and replace placeholders first.'},400);
   const lines=text.split('\n'),subject=lines.shift().replace(/^Subject:\s*/i,'').trim(),content=lines.join('\n').trim();
   if(!subject||subject.length>250||/[\r\n]/.test(subject)||!content)return json({error:'A subject line and body are required.'},400);
@@ -35,20 +35,22 @@ export async function onRequest({request,env}){
   try{presentation=globalThis.StudioEmail.render(p,text);}catch(e){return json({error:e.message},400);}
   if(presentation.html&&p.mailPresentation?.templateVersion!==presentation.config.version)return json({error:'The demo screenshots have changed. Save appearance and review the updated preview before sending.'},409);
   if(body.presentation&&JSON.stringify(body.presentation)!==JSON.stringify(presentation.config))return json({error:'Email appearance changed. Save and review the final preview first.'},409);
-  if(presentation.html&&!body.presentation)return json({error:'Review the formatted preview before sending.'},400);
+  if(!body.preflight&&presentation.html&&!body.presentation)return json({error:'Review the formatted preview before sending.'},400);
   const existing=await get('studio_mail?project_id=eq.'+encodeURIComponent(p.id)+'&select=*');
   if(existing.some(m=>m.direction==='inbound'))return json({error:'A reply is recorded. Review the conversation in your mailbox; automated outreach is paused.'},409);
   const retry=body.retry?existing.find(m=>m.id===body.retry&&m.status==='queued'&&m.direction==='outbound'):null;
-  if(existing.some(m=>['queued','sending','uncertain'].includes(m.status)&&(!retry||m.id!==retry.id)))return json({error:'A send is pending or uncertain. Check its status and your mailbox before trying again.'},409);
+  if(!body.preflight&&existing.some(m=>['queued','sending','uncertain'].includes(m.status)&&(!retry||m.id!==retry.id)))return json({error:'A send is pending or uncertain. Check its status and your mailbox before trying again.'},409);
   if(existing.filter(m=>m.direction==='outbound'&&m.status==='accepted').length||p.sentAt)return json({error:'First-contact sending only for now. Handle follow-ups and replies in your mailbox.'},409);
   const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p.id+'\n'+p.email.toLowerCase()+'\n'+text+'\n'+JSON.stringify(presentation.config)));
   const dedupe=Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('');
+  if(body.preflight){await prepareGmail(env,{owner_id:workspace.owner_id,project_id:p.id,recipient:p.email,subject,body:content,html_body:presentation.html,presentation:presentation.config});return json({ready:true,message:'Gmail connection, From identity, saved draft, embedded images and reply check passed. No email was queued or sent.'});}
   if(body.retry){if(!retry||retry.dedupe!==dedupe)return json({error:'Queued email differs from this reviewed version. No retry performed.'},409);try{return json({message:retry,send:await sendGmail(env,retry)});}catch(e){try{await recordQueuedError(env,retry.id,e);}catch{}return json({error:e.status?e.message:'Retry stopped before sending. Check status.'},e.status||503);}}
+  const prepared=await prepareGmail(env,{owner_id:workspace.owner_id,project_id:p.id,recipient:p.email,subject,body:content,html_body:presentation.html,presentation:presentation.config});
   const r=await fetch(identity.url+'/rest/v1/studio_mail',{method:'POST',headers:{...headers,Prefer:'return=representation'},body:JSON.stringify({owner_id:workspace.owner_id,project_id:p.id,direction:'outbound',recipient:p.email,subject,body:content,dedupe,status:'queued',...(presentation.html?{html_body:presentation.html,presentation:presentation.config}:{})})});
   if(r.status===409)return json({error:'This exact message has already been queued. Refresh mail status.'},409);
   if(!r.ok)throw Error('Could not queue email. Nothing was sent by this request.');
   const queued=(await r.json())[0];
-  try{return json({message:queued,send:await sendGmail(env,queued)});}
+  try{return json({message:queued,send:await sendGmail(env,queued,prepared)});}
   catch(e){try{await recordQueuedError(env,queued.id,e);}catch{}return json({queued:true,error:e.status?e.message:'Send did not complete. Check status before retrying; the queued record is retained.'},e.status||503);}
  }catch(e){return json({error:e.status?e.message:'Mail request failed. Check setup and refresh status before retrying.'},e.status||503);}
 }

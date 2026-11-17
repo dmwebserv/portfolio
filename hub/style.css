@@ -85,3 +85,16 @@ body:has(dialog[open]) .orb{visibility:hidden}
 /* Native text selection/scrolling only. No wheel/touch listeners are installed. */
 .mailbox-message pre{font-family:inherit;font-size:16px;line-height:1.65}
 .email-context{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}.email-context p{margin:0}
+/* Compose → design/preview → delivery → durable, readable records. */
+#connected-mail>.live-ai{padding:0;border:0;background:none}
+#connected-mail .email-design{padding:24px;margin:0 0 24px;border:1px solid #bad0c7;border-radius:14px;background:#f8faf7}
+#connected-mail .email-design>summary{font-size:20px;font-weight:600}
+.mail-delivery{padding:24px;border:1px solid #bad0c7;border-radius:14px;background:#f8faf7}
+.mail-delivery>h3{margin-top:0}.mail-readiness{padding:16px;border:1px solid #c4d5c8;border-radius:12px;margin:18px 0;background:#eaf1e9}
+.mail-readiness p{margin-bottom:0;white-space:pre-wrap!important;overflow-wrap:anywhere}
+#mail-history .mail-record{margin-top:20px;padding:20px;border:1px solid #bfcec4;border-radius:12px;background:white}
+.mail-record summary strong,.mail-record summary span{display:block}.mail-record summary strong{font-size:18px}.mail-record summary span{font-size:15px;color:var(--muted);margin-top:6px}
+.mail-record-meta{display:grid;grid-template-columns:140px minmax(0,1fr);gap:10px 16px;font-size:15px;margin:22px 0}.mail-record-meta dt{color:var(--muted)}.mail-record-meta dd{margin:0;overflow-wrap:anywhere}
+.mail-record-detail{padding:16px;background:#f0f5ef;border-radius:8px;white-space:pre-wrap;font-size:16px;overflow-wrap:anywhere}
+.mail-message-body{font-family:inherit;font-size:16px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;max-height:none;overflow:visible;padding:0}
+@media(max-width:720px){#connected-mail .email-design,.mail-delivery,#mail-history .mail-record{padding:17px}.mail-record-meta{grid-template-columns:minmax(0,1fr);gap:4px}.mail-record-meta dd{margin-bottom:12px}}
