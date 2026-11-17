@@ -1102,33 +1102,6 @@
     </div>
   </footer>
 
-  <script>
-    (function () {
-      var btn695 = document.getElementById('btnMode695');
-      var btn295 = document.getElementById('btnMode295');
-
-      if (btn695 && btn295) {
-        btn695.addEventListener('click', function () {
-          document.body.classList.remove('mode-295');
-          btn695.classList.add('is-active');
-          btn295.classList.remove('is-active');
-        });
-        btn295.addEventListener('click', function () {
-          document.body.classList.add('mode-295');
-          btn295.classList.add('is-active');
-          btn695.classList.remove('is-active');
-        });
-      }
-
-      var form = document.getElementById('demoRfqForm');
-      var notice = document.getElementById('demoNotice');
-      if (form && notice) {
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
-          notice.classList.add('is-shown');
-        });
-      }
-    })();
-  </script>
+  <script src="demo.js"></script>
 </body>
 </html>

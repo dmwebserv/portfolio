@@ -5,6 +5,7 @@ Output: dist/studio. NEVER use a secret/service-role key here.
 import base64
 import json
 import os
+import re
 import shutil
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -43,6 +44,15 @@ for rel in ['README.md','templates/outreach.md','templates/agreement-and-invoice
 shutil.copytree(root/'demos',out/'demos')
 for name in ['uk-export.html','uk-export-terms.html','terms.html','refunds.html','privacy-policy.html','thanks.html']:
     shutil.copy2(root/name,out/name)
+    page=out/name
+    counter=[0]
+    def externalise(match):
+        attrs,body=match.group(1),match.group(2)
+        if re.search(r'\bsrc\s*=',attrs): return match.group(0)
+        filename=Path(name).stem+'-script-'+str(counter[0])+'.js';counter[0]+=1
+        (out/filename).write_text(body)
+        return '<script src="'+filename+'"'+attrs+'></script>'
+    page.write_text(re.sub(r'<script([^>]*)>(.*?)</script>',externalise,page.read_text(),flags=re.S))
 shutil.copytree(root/'images',out/'images')
 (out/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
 # Use a real directory index: Pages canonicalises .html paths, so a rewrite
