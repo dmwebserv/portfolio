@@ -1,3 +1,5 @@
+> SUPERSEDED: use `../cloud/SETUP.md` for the recommended £0-first deployment. This document is retained only for the optional paid self-hosted backend. Do not follow it for the free setup. The old blueprint is now `legacy/render-paid.example.yaml`.
+
 # Private Studio deployment — owner checklist
 
 ## Chosen deployment path

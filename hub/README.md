@@ -1,3 +1,7 @@
+# Recommended deployment: FREE-TIER
+
+See [cloud/SETUP.md](cloud/SETUP.md). Supabase Auth + owner-only RLS database, Cloudflare Pages static hosting. No paid Render deployment required.
+
 # Studio — dashboard and server foundation
 Open `/hub/` on the preview server (port 8000). No build step or external dependencies.
 
