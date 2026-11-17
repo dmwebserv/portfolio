@@ -40,3 +40,8 @@ for name in ['workspace-ui.js','mailbox.js']:
     assert (out/name).exists()
     assert 'src="'+name+'"' in (out/'index.html').read_text()
 print('PASS: focused project sheets and mailbox modules are included in the deployed shell.')
+
+assert (out/'mail-status.js').exists()
+assert 'src="mail-status.js"' in (out/'index.html').read_text()
+assert not (out/'cloud/email-image-data.js').exists()
+print('PASS: shared mail chips deployed; server image bundle is not a browser module.')

@@ -1,5 +1,6 @@
 import '../email-template.js';
 import {emailAssets} from './email-assets.js';
+import {emailImageData} from './email-image-data.js';
 // Server-only Gmail transport. Never import into a browser asset.
 const scopes=['https://www.googleapis.com/auth/gmail.send','https://www.googleapis.com/auth/gmail.readonly','https://www.googleapis.com/auth/gmail.settings.basic'];
 export {scopes};
@@ -66,11 +67,10 @@ export async function prepareGmail(env,row){
  await preparation('images',async()=>{if(rendered.html){
   for(const asset of rendered.assets){
    const expected=emailAssets[asset.file];if(!expected)throw fail('Unknown email asset.');
-   // Studio already deploys these immutable files; avoid a cross-domain fetch/redirect.
-   const assetRequest=new Request(config(env).origin+'/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
-   const r=env.ASSETS?.fetch?await env.ASSETS.fetch(assetRequest):await fetch('https://dmwebservices.co.uk/images/email/'+asset.file,{redirect:'error',signal:AbortSignal.timeout(15000)});
-   if(!r.ok||Number(r.headers.get('Content-Length')||0)>500000)throw fail('Email image unavailable. Deploy the public email assets before sending.');
-   const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>500000)throw fail('Email image too large.');
+   // Exact reviewed bytes travel with the worker: no DNS, redirects, ASSETS binding or image transforms.
+   const encoded=emailImageData[asset.file];if(!encoded)throw fail('Bundled email image missing: '+asset.file+'. Rebuild and deploy Studio.');
+   let bytes;try{bytes=Uint8Array.from(atob(encoded),char=>char.charCodeAt(0));}catch{throw fail('Bundled email image could not be decoded: '+asset.file+'. Rebuild Studio.');}
+   if(bytes.length>500000||bytes.length!==expected.size)throw fail('Bundled email image size mismatch: '+asset.file+'. Rebuild Studio.');
    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
    if(hash!==expected.sha256)throw fail('Email image changed since this template was prepared. Sending stopped.');
    inline.push({...asset,bytes});

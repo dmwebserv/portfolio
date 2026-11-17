@@ -7,6 +7,8 @@ import json
 import os
 import re
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -22,10 +24,11 @@ if not key.startswith('sb_publishable_'):
         payload=json.loads(base64.urlsafe_b64decode(key.split('.')[1]+'==='))
         assert payload['role']=='anon'
     except Exception: raise SystemExit('Refusing key: only a publishable key or legacy anon JWT may enter browser assets. Never use secret/service_role.')
+subprocess.run([sys.executable,str(root/'scripts/build-mail-images.py'),'--check'],check=True)
 out=root/'dist/studio'
 if out.exists(): shutil.rmtree(out)
 out.mkdir(parents=True)
-for name in ['index.html','style.css','app.js','login.html','login.js','ai.js','mail.js','email-template.js','shell.js','workspace-ui.js','mailbox.js','app.webmanifest']:
+for name in ['index.html','style.css','app.js','login.html','login.js','ai.js','mail.js','mail-status.js','email-template.js','shell.js','workspace-ui.js','mailbox.js','app.webmanifest']:
     shutil.copy2(root/'hub'/name,out/name)
 shutil.copytree(root/'hub/app-icons',out/'app-icons')
 shutil.copy2(root/'hub/cloud/adapter.js',out/'cloud.js')
