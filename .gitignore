@@ -1,0 +1,13 @@
+# Private state and credentials
+.env
+.env.*
+!.env.example
+hub/server/.venv/
+*.sqlite
+*.sqlite-*
+__pycache__/
+node_modules/
+
+.studio-setup/
+
+dist/

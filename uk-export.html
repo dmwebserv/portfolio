@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK Export Websites for Overseas Manufacturers | dmwebservices.</title>
+  <meta name="description" content="Standalone UK-facing showcase websites and .co.uk catalogues for overseas manufacturers selling to British distributors, merchants and stockists." />
+  <meta name="theme-color" content="#101513" />
+
+  <!-- Social sharing -->
+  <meta property="og:title" content="UK-Ready Websites for Overseas Manufacturers | dmwebservices." />
+  <meta property="og:description" content="Turn UK distributor & stockist outreach into real enquiries with a fast, standalone British trade website — without touching your existing server." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dmwebservices.co.uk/uk-export.html" />
+  <meta property="og:site_name" content="dmwebservices." />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:image" content="https://dmwebservices.co.uk/images/og-image.jpg" />
+
+  <link rel="canonical" href="https://dmwebservices.co.uk/uk-export.html" />
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+
+  <style>
+    :root {
+      --ink: #101513;
+      --ink-soft: #3f4843;
+      --muted: #66716a;
+      --paper: #f7f8f3;
+      --panel: #ffffff;
+      --panel-alt: #eef1eb;
+      --line: #dfe4dc;
+      --accent: #b7ff73;
+      --accent-dark: #6fbf32;
+      --danger-soft: #fff2f0;
+      --danger-ink: #9e2a2b;
+      --shadow: 0 24px 70px rgba(16, 21, 19, 0.08);
+      --radius-sm: 10px;
+      --radius-md: 18px;
+      --radius-lg: 28px;
+      --max: 1400px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    body {
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(183, 255, 115, 0.22), transparent 34rem),
+        radial-gradient(circle at 82% 8%, rgba(16, 21, 19, 0.08), transparent 26rem),
+        var(--paper);
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 12px;
+      z-index: 999;
+      background: var(--accent);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .skip-link:focus { left: 12px; }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    /* Optional personalised bar shown when arriving from a custom client demo */
+    .proposal-banner {
+      display: none;
+      background: var(--ink);
+      color: var(--paper);
+      border-bottom: 1px solid rgba(183, 255, 115, 0.25);
+      padding: 11px 0;
+      font-size: 0.88rem;
+    }
+
+    .proposal-banner.is-visible { display: block; }
+
+    .proposal-banner-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .proposal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .proposal-pill strong {
+      color: var(--accent);
+      font-weight: 850;
+    }
+
+    .proposal-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(183, 255, 115, 0.14);
+      border: 1px solid rgba(183, 255, 115, 0.35);
+      color: var(--accent);
+      padding: 5px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .proposal-back-link:hover {
+      background: var(--accent);
+      color: var(--ink);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-dark);
+      box-shadow: 0 0 0 6px rgba(111, 191, 50, 0.13);
+    }
+
+    h1, h2, h3 { letter-spacing: -0.05em; line-height: 1.05; }
+    p { color: var(--ink-soft); }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(247, 248, 243, 0.82);
+      border-bottom: 1px solid rgba(223, 228, 220, 0.7);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      font-size: 1.08rem;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--ink);
+      color: var(--accent);
+      font-weight: 950;
+      letter-spacing: -0.08em;
+    }
+
+    .division-tag {
+      font-size: 0.73rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      list-style: none;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      font-weight: 750;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 46px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 850;
+      border: 1px solid transparent;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-primary:hover { background: #27302b; }
+    .btn-accent { background: var(--accent); color: var(--ink); }
+    .btn-accent:hover { background: #c5ff8c; }
+    .btn-outline { border-color: var(--line); background: rgba(255,255,255,.65); color: var(--ink); }
+    .btn-outline:hover { border-color: var(--ink); }
+
+    .mobile-menu { display: none; }
+
+    /* Hero */
+    .hero { padding: 76px 0 48px; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(350px, 0.92fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      margin-top: 20px;
+      font-size: clamp(2.75rem, 4.9vw, 4.55rem);
+      max-width: 900px;
+    }
+
+    .hero .lead {
+      margin-top: 24px;
+      font-size: clamp(1.06rem, 1.8vw, 1.26rem);
+      max-width: 690px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .hero-proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 750;
+    }
+
+    .proof-pill {
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.66);
+      border-radius: 999px;
+    }
+
+    /* Before / After Comparison Card */
+    .compare-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 14px;
+    }
+
+    .compare-pane {
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid var(--line);
+    }
+
+    .compare-pane.before {
+      background: #faf6f5;
+      border-color: #ecd7d5;
+    }
+
+    .compare-pane.after {
+      background: linear-gradient(135deg, rgba(183, 255, 115, 0.16), rgba(255,255,255,0.95));
+      border-color: #cde3b5;
+    }
+
+    .pane-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-bad {
+      background: #fde4e1;
+      color: var(--danger-ink);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .badge-good {
+      background: var(--accent);
+      color: var(--ink);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .pane-url {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .pane-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      font-size: 0.91rem;
+      color: var(--ink-soft);
+      font-weight: 650;
+    }
+
+    .pane-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .pane-list .mark-x {
+      color: var(--danger-ink);
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .pane-list .mark-ok {
+      color: var(--accent-dark);
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    section { padding: 80px 0; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 30px;
+      margin-bottom: 34px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2.1rem, 4.2vw, 3.8rem);
+      max-width: 760px;
+      margin-top: 14px;
+    }
+
+    .section-head p { max-width: 470px; font-size: 1.04rem; }
+
+    /* Buyer reality dark panel */
+    .pain-panel {
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: var(--radius-lg);
+      padding: clamp(30px, 5vw, 58px);
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 42px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pain-panel::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -140px;
+      top: -140px;
+      background: var(--accent);
+      opacity: .15;
+      border-radius: 50%;
+      filter: blur(18px);
+    }
+
+    .pain-panel .eyebrow { color: #b8c4bc; }
+    .pain-panel h2 { font-size: clamp(2.1rem, 4vw, 3.8rem); max-width: 580px; margin-top: 14px; }
+    .pain-panel p { color: #c9d2cc; font-size: 1.08rem; margin-top: 18px; }
+
+    .check-list {
+      list-style: none;
+      display: grid;
+      gap: 13px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .check-list li {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.11);
+      padding: 15px 17px;
+      border-radius: 16px;
+      color: #f4f8f1;
+      font-weight: 700;
+      font-size: 0.96rem;
+    }
+
+    .check-list li::before {
+      content: "✓";
+      display: inline-grid;
+      place-items: center;
+      width: 23px;
+      height: 23px;
+      margin-right: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--ink);
+      font-weight: 950;
+    }
+
+    /* Zero-risk standalone setup cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      box-shadow: 0 12px 36px rgba(16, 21, 19, 0.04);
+    }
+
+    .card-number {
+      color: var(--muted);
+      font-weight: 900;
+      font-size: .8rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .card h3 {
+      font-size: 1.42rem;
+      margin: 16px 0 10px;
+    }
+
+    .card p { font-size: .97rem; }
+
+    /* Two-tier B2B Pricing */
+    .pricing-two {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .price-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: clamp(28px, 3.5vw, 40px);
+      box-shadow: 0 14px 40px rgba(16, 21, 19, 0.05);
+    }
+
+    .price-card.featured {
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+      background:
+        radial-gradient(circle at top right, rgba(183, 255, 115, 0.22), transparent 18rem),
+        var(--panel);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -14px;
+      left: 32px;
+      background: var(--accent);
+      color: var(--ink);
+      font-size: .75rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 21, 19, 0.12);
+    }
+
+    .price-eyebrow {
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .price-title {
+      font-size: 1.65rem;
+      margin-top: 8px;
+      letter-spacing: -0.04em;
+    }
+
+    .price-tag {
+      margin-top: 14px;
+      font-size: 2.7rem;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      color: var(--ink);
+    }
+
+    .price-tag span {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    .price-blurb {
+      margin-top: 12px;
+      font-size: 0.98rem;
+      max-width: 520px;
+    }
+
+    .price-features {
+      list-style: none;
+      display: grid;
+      gap: 11px;
+      margin: 24px 0 30px;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+      font-weight: 650;
+    }
+
+    .price-features li {
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .price-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-dark);
+      font-weight: 950;
+    }
+
+    .price-btn { margin-top: auto; width: 100%; }
+
+    .care-strip {
+      margin-top: 22px;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 20px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .care-strip strong { color: var(--ink); }
+
+    .trust-terms {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .trust-term {
+      background: rgba(255,255,255,.65);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 15px 18px;
+      font-size: 0.89rem;
+      color: var(--ink-soft);
+    }
+
+    .trust-term strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 3px;
+      font-size: 0.93rem;
+    }
+
+    /* Live Demo Showcase Card */
+    .demo-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 36px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: clamp(24px, 4vw, 46px);
+      box-shadow: var(--shadow);
+    }
+
+    .case-tag {
+      display: inline-flex;
+      align-items: center;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 850;
+    }
+
+    .demo-showcase h3 {
+      font-size: clamp(1.9rem, 3.4vw, 3rem);
+      margin-top: 16px;
+    }
+
+    .case-points {
+      list-style: none;
+      display: grid;
+      gap: 13px;
+      margin: 22px 0 28px;
+    }
+
+    .case-points li {
+      padding-left: 16px;
+      border-left: 3px solid var(--accent-dark);
+      color: var(--ink-soft);
+      font-size: 0.96rem;
+    }
+
+    .case-points strong { color: var(--ink); }
+
+    .browser-frame {
+      background: #121614;
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: 0 22px 56px rgba(0,0,0,.14);
+    }
+
+    .browser-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 4px 12px;
+      color: rgba(255,255,255,.6);
+      font-size: .74rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .dots span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.28);
+      margin-right: 5px;
+    }
+
+    .browser-frame img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 13px;
+    }
+
+    /* Process */
+    .process {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      counter-reset: step;
+    }
+
+    .step {
+      min-height: 220px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: "0" counter(step);
+      display: block;
+      color: var(--accent);
+      font-weight: 950;
+      margin-bottom: 38px;
+    }
+
+    .step h3 { font-size: 1.25rem; letter-spacing: -0.03em; margin-bottom: 9px; }
+    .step p { color: #c9d2cc; font-size: .93rem; }
+
+    /* Contact / Confirm Package */
+    #connect {
+      width: min(var(--max), calc(100% - 40px));
+      margin-inline: auto;
+      padding-bottom: 80px;
+    }
+
+    .connect-box {
+      background:
+        linear-gradient(135deg, rgba(183,255,115,.18), transparent 38%),
+        var(--ink);
+      color: var(--paper);
+      border-radius: var(--radius-lg);
+      padding: clamp(28px, 5vw, 58px);
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .connect-copy h2 {
+      font-size: clamp(2.1rem, 4vw, 3.7rem);
+      margin-top: 14px;
+    }
+
+    .connect-copy p {
+      color: #c9d2cc;
+      margin-top: 16px;
+      font-size: 1.04rem;
+    }
+
+    .direct-email-card {
+      margin-top: 26px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .direct-email-card span {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .direct-email-card a {
+      font-size: 1.12rem;
+      font-weight: 850;
+      color: #ffffff;
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-underline-offset: 4px;
+    }
+
+    .direct-email-card p {
+      font-size: 0.89rem;
+      margin-top: 8px;
+      color: #bdc8c1;
+    }
+
+    form {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      padding: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .input-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      color: #d8e1db;
+      font-size: .8rem;
+      font-weight: 850;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(16, 21, 19, 0.55);
+      color: var(--paper);
+      border-radius: 14px;
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+    }
+
+    select option {
+      background: #101513;
+      color: #f7f8f3;
+    }
+
+    textarea { resize: vertical; min-height: 118px; }
+    input::placeholder, textarea::placeholder { color: rgba(248,248,243,.46); }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(183,255,115,.14);
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .site-footer {
+      padding: 34px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-size: .92rem;
+    }
+
+    .footer-inner strong { color: var(--ink); }
+    .legal-links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .pain-panel,
+      .pricing-two,
+      .demo-showcase,
+      .connect-box,
+      .cards,
+      .trust-terms { grid-template-columns: 1fr; }
+      .process { grid-template-columns: 1fr 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 14px; }
+    }
+
+    @media (max-width: 720px) {
+      .container, #connect { width: min(100% - 28px, var(--max)); }
+      .site-header { position: static; }
+      .division-tag, .nav-links, .nav-cta { display: none; }
+      .mobile-menu { display: block; position: relative; }
+      .mobile-menu summary {
+        list-style: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--paper);
+        font-weight: 850;
+        font-size: .92rem;
+      }
+      .mobile-menu summary::-webkit-details-marker { display: none; }
+      .mobile-menu ul {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 10px);
+        width: 240px;
+        list-style: none;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 8px;
+        z-index: 60;
+      }
+      .mobile-menu li a {
+        display: block;
+        padding: 12px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 750;
+        color: var(--ink);
+      }
+      .mobile-menu li a:hover { background: var(--panel-alt); }
+      .hero { padding-top: 46px; }
+      section { padding: 56px 0; }
+      .process, .form-row { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .hero-actions { width: 100%; }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/site-foundation.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Personalised bar (shown automatically when linked from a custom client preview) -->
+  <div class="proposal-banner" id="proposalBanner" role="region" aria-label="Custom proposal notice">
+    <div class="container proposal-banner-inner">
+      <span class="proposal-pill">
+        Proposal prepared for <strong id="bannerClientName">your UK export team</strong>
+        <span id="bannerDomainWrap"></span>
+      </span>
+      <a href="demos/tyfibre/" class="proposal-back-link" id="bannerDemoLink">← Return to your UK preview</a>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <div class="brand-wrap">
+        <a href="/" class="brand" aria-label="dmwebservices. UK Export home">
+          <span class="brand-mark">dm.</span>
+          <span>dmwebservices.</span>
+        </a>
+        <span class="division-tag">UK Export &amp; B2B</span>
+      </div>
+
+      <ul class="nav-links">
+        <li><a href="#why">For UK buyers</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#packages">Pricing</a></li>
+        <li><a href="#demo">Live Example</a></li>
+        <li><a href="#connect">Start Project</a></li>
+      </ul>
+
+      <a href="#packages" class="btn btn-primary nav-cta">View UK Packages</a>
+
+      <details class="mobile-menu">
+        <summary>Menu</summary>
+        <ul>
+          <li><a href="#why">For UK buyers</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#packages">Pricing</a></li>
+          <li><a href="#demo">Live Example</a></li>
+          <li><a href="#connect">Start Project</a></li>
+        </ul>
+      </details>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Based in England · Built for Overseas Exporters</span>
+          <h1>A clearer website for your UK trade customers.</h1>
+          <p class="lead">Help UK stockists and distributors understand your range, check specifications and get in touch. I build standalone trade websites with clear English content—without replacing your existing site.</p>
+
+          <div class="hero-actions">
+            <a href="#packages" class="btn btn-primary">Compare £295 &amp; £695 packages</a>
+            <a href="#demo" class="btn btn-accent">See live UK manufacturer demo</a>
+          </div>
+
+          <div class="hero-proof" aria-label="Key advantages">
+            <span class="proof-pill">Native British trade English</span>
+            <span class="proof-pill">Your domestic .com stays untouched</span>
+            <span class="proof-pill">Client-owned domain &amp; hosting</span>
+            <span class="proof-pill">50% deposit · balance before launch</span>
+          </div>
+        </div>
+
+        <aside class="compare-card" aria-label="Before and after website comparison">
+          <div class="compare-pane before">
+            <div class="pane-top">
+              <span class="badge-bad">Typical Domestic Site</span>
+              <span class="pane-url">http://yourfactory.com/en/index.asp</span>
+            </div>
+            <ul class="pane-list">
+              <li><span class="mark-x">✕</span> <span>Legacy menus &amp; broken characters on modern UK browsers and phones</span></li>
+              <li><span class="mark-x">✕</span> <span>Literal machine-translated English that confuses UK procurement buyers</span></li>
+              <li><span class="mark-x">✕</span> <span>Domestic chat popups (QQ / WangWang / retired Skype) instead of UK RFQ</span></li>
+              <li><span class="mark-x">✕</span> <span>Slow overseas server response without HTTPS security</span></li>
+            </ul>
+          </div>
+
+          <div class="compare-pane after">
+            <div class="pane-top">
+              <span class="badge-good">Standalone UK Trade Site</span>
+              <span class="pane-url" id="mockAfterDomain">https://yourfactory.co.uk</span>
+            </div>
+            <ul class="pane-list">
+              <li><span class="mark-ok">✓</span> <span>Written in England using real UK trade &amp; specification terminology</span></li>
+              <li><span class="mark-ok">✓</span> <span>Responsive pages with HTTPS on an agreed hosting provider</span></li>
+              <li><span class="mark-ok">✓</span> <span>Clear metric spec tables, MOQ/container details &amp; OEM capabilities</span></li>
+              <li><span class="mark-ok">✓</span> <span>Direct UK sample &amp; container quote routing to your export team</span></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="why" aria-labelledby="why-heading">
+      <div class="container pain-panel">
+        <div>
+          <span class="eyebrow">The UK buyer perspective</span>
+          <h2 id="why-heading">Make your catalogue easier for UK trade buyers to assess.</h2>
+          <p>A clear product range, readable specifications and a straightforward enquiry route can help buyers assess whether to start a conversation. A website alone cannot guarantee enquiries or sales.</p>
+        </div>
+        <ul class="check-list">
+          <li>Clear UK trade names &amp; metric product specifications</li>
+          <li>Fast, mobile-friendly HTTPS pages with zero broken scripts</li>
+          <li>Verified factory capacity, R&amp;D labs, patents &amp; OEM packaging options</li>
+          <li>Simple sample &amp; container RFQ routes (Email / WhatsApp)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="how" aria-labelledby="how-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Zero server disruption</span>
+            <h2 id="how-heading">Keep your domestic website untouched. Launch a dedicated UK storefront.</h2>
+          </div>
+          <p>No need to hand over passwords to your domestic hosting server, touch ICP registrations, or rebuild legacy databases.</p>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <span class="card-number">01 / Standalone setup</span>
+            <h3>Separate from your local server</h3>
+            <p>Your existing domestic site stays exactly as it is. We launch your UK presence on a clean British <strong>.co.uk</strong> domain (or an <strong>en. / uk.</strong> subdomain) hosted through an agreed commercial-use static hosting provider in an account you control.</p>
+          </article>
+
+          <article class="card">
+            <span class="card-number">02 / Written in the UK</span>
+            <h3>Proper British trade copy</h3>
+            <p>Send your raw product brochures, PDF spec sheets or existing English text. I adapt the agreed content into clear British trade English. Your team approves the technical meaning and final claims before launch.</p>
+          </article>
+
+          <article class="card">
+            <span class="card-number">03 / Direct export leads</span>
+            <h3>Enquiries straight to your inbox</h3>
+            <p>Every quote or sample request from UK buyers goes directly to your export manager's email (plus optional WhatsApp click-to-chat), ready to drop into every sales email your team sends.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="packages" aria-labelledby="packages-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Fixed-price B2B packages</span>
+            <h2 id="packages-heading">Two straightforward ways to launch your UK site.</h2>
+          </div>
+          <p>One-off build pricing with no hidden agency retainers. Pick the level that matches your UK outreach plans.</p>
+        </div>
+
+        <div class="pricing-two">
+          <article class="price-card">
+            <span class="price-eyebrow">Option 1 · Fast Market Entry</span>
+            <h3 class="price-title">UK Trade Showcase</h3>
+            <p class="price-tag">£295 <span>one-off</span></p>
+            <p class="price-blurb">A sharp, single-page UK export showcase ideal for linking in outbound sales emails to British stockists and buyers.</p>
+            <ul class="price-features">
+              <li>Custom single-page showcase: up to 6 sections</li>
+              <li>Rewritten in natural British B2B &amp; trade English</li>
+              <li>Up to 6 product families using supplied, approved information</li>
+              <li>Company credentials section using evidence you approve</li>
+              <li>Direct Export RFQ form routed to your sales inbox</li>
+              <li>Static hosting setup in your account; external provider/domain fees paid directly by you</li>
+            </ul>
+            <a href="#connect" data-package="£295 — UK Trade Showcase (1-Page)" class="btn btn-outline price-btn js-select-pkg">Select £295 UK Showcase →</a>
+          </article>
+
+          <article class="price-card featured">
+            <span class="price-badge">Recommended for UK Outreach</span>
+            <span class="price-eyebrow">Option 2 · Complete British Presence</span>
+            <h3 class="price-title">Full UK Catalogue + .co.uk Setup</h3>
+            <p class="price-tag">£695 <span>one-off</span></p>
+            <p class="price-blurb">A complete multi-section UK distributor portal on your own dedicated <strong>.co.uk</strong> domain, designed to support your trade outreach, not a guarantee of sales.</p>
+            <ul class="price-features">
+              <li>Everything in the UK Trade Showcase</li>
+              <li>Available standard <strong>.co.uk</strong> registration &amp; DNS setup: first year up to £20 included, registered to you</li>
+              <li>Up to 5 static pages or 10 sections; up to 12 product families and 2 specification tables</li>
+              <li>OEM / Private-Label packaging, pallet &amp; container logistics section</li>
+              <li>Download hub for up to 6 supplied PDF documents</li>
+              <li>Email forwarding setup where supported by your chosen provider; mailbox/provider charges excluded</li>
+              <li>Search-friendly titles, descriptions and sitemap; indexing and rankings are not guaranteed</li>
+            </ul>
+            <a href="#connect" data-package="£695 — Full UK Catalogue + .co.uk Setup" class="btn btn-accent price-btn js-select-pkg">Select £695 Full UK Site →</a>
+          </article>
+        </div>
+
+        <p>Both packages include two consolidated revision rounds and 14 days of post-launch defect correction. No ecommerce, stock database, certified translation or ongoing SEO campaign. <a href="uk-export-terms.html">Read the full scope, ownership, renewals and cancellation details →</a></p>
+        <div class="care-strip">
+          <div>
+            <strong>Optional Ongoing UK Care &amp; Domain Management — £35/month:</strong>
+            <span>Up to 30 minutes of minor updates each month, monthly link/form checks and standard .co.uk renewal up to £20/year while subscribed. No rollover. Cancel before your next billing date. Hosting/mailbox charges excluded. Without care, you manage renewals and updates; ad hoc work is quoted separately.</span>
+          </div>
+          <a href="#connect" data-package="£695 Full UK Site + £35/mo Ongoing UK Care" class="btn btn-outline js-select-pkg">Ask about Care Plan</a>
+        </div>
+
+        <div class="trust-terms" aria-label="Payment and turnaround details">
+          <div class="trust-term">
+            <strong>Agreed Delivery Schedule</strong>
+            <span>Target: 5–7 working days for the showcase, 7–10 for the catalogue, after cleared deposit, complete content and access. Feedback delays pause the schedule.</span>
+          </div>
+          <div class="trust-term">
+            <strong>50% Deposit · Balance Before Launch</strong>
+            <span>£147.50 + £147.50 for the showcase, or £347.50 + £347.50 for the catalogue. Final payment follows your approval and precedes custom-domain launch.</span>
+          </div>
+          <div class="trust-term">
+            <strong>Easy International Payment</strong>
+            <span>GBP invoices with the available payment methods confirmed on your invoice. No payment is requested until we agree the scope and external costs in writing.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" aria-labelledby="demo-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Live hosted demo</span>
+            <h2 id="demo-heading">See how an industrial catalogue translates for UK buyers.</h2>
+          </div>
+          <p>Click through a live read-only UK trade preview built to replace a broken legacy <code>.asp</code> manufacturer site.</p>
+        </div>
+
+        <article class="demo-showcase">
+          <div>
+            <span class="case-tag">Live Concept Demo · Construction &amp; Technical Textiles</span>
+            <h3>Tianyu Fibre UK (unofficial design concept)</h3>
+            <p>This is speculative design work, not a commissioned client project or evidence of sales results. Proposed domain availability is not confirmed.</p>
+            <ul class="case-points">
+              <li><strong>The problem:</strong> A major 350-person manufacturer (100M m²/yr capacity) had an older <code>.asp</code> site where menus failed to load, breadcrumbs showed broken encoding symbols, and domestic QQ widgets appeared on English pages.</li>
+              <li><strong>The UK transformation:</strong> Repositioned in proper British construction terminology — <em>Alkali-Resistant EWI Render Mesh, Drywall Scrim Tape &amp; Mechanical Fixings</em> — with clean metric spec tables, container/OEM packaging details, and a direct Export RFQ desk.</li>
+            </ul>
+            <a href="demos/tyfibre/" class="btn btn-primary">Open live read-only demo →</a>
+          </div>
+
+          <div class="browser-frame">
+            <div class="browser-top">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>tyfibre.co.uk · UK Trade Preview</span>
+            </div>
+            <a href="demos/tyfibre/" aria-label="Open Tianyu Fibre UK demo">
+              <img width="1440" height="1000" src="images/tyfibre-site-preview.jpg" alt="Preview of UK industrial fibreglass mesh export website" loading="lazy" />
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-label="Fastener design concept"><div class="container"><article class="demo-showcase"><div><span class="case-tag">Unofficial concept · Fasteners</span><h3>Shibiao Fastener</h3><p>A focused showcase or a richer product catalogue, built around the existing WF identity. These are speculative previews, not commissioned client results.</p><p style="margin:24px 0"><a class="btn btn-outline" href="demos/lfastener/?tier=showcase">£295 showcase →</a> <a class="btn btn-primary" href="demos/lfastener/?tier=catalogue">£695 catalogue →</a></p></div><div class="browser-frame"><div class="browser-top"><div class="dots"><span></span><span></span><span></span></div><span>Shibiao Fastener · Catalogue concept</span></div><a href="demos/lfastener/?tier=catalogue"><img width="1440" height="1000" src="images/shibiao-site-preview.jpg" loading="lazy" alt="Shibiao catalogue website preview, shown at its original proportions"></a></div></article></div></section>
+
+    <section id="process" aria-labelledby="process-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Simple 4-step launch</span>
+            <h2 id="process-heading">From concept to launch, with a clear approval process.</h2>
+          </div>
+        </div>
+
+        <div class="process">
+          <article class="step">
+            <h3>Review preview</h3>
+            <p>Check the hosted UK concept preview (or send over your current site &amp; PDF product catalogue).</p>
+          </article>
+          <article class="step">
+            <h3>Confirm package</h3>
+            <p>Reply to my email or use the form below to pick the £295 or £695 option and receive your 50% deposit invoice.</p>
+          </article>
+          <article class="step">
+            <h3>Verify specs</h3>
+            <p>We confirm exact product specifications, photos, MOQs, export email and WhatsApp contact routes.</p>
+          </article>
+          <article class="step">
+            <h3>Launch for UK buyers</h3>
+            <p>Your standalone UK site goes live — ready to include in every pitch to British stockists and distributors.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="connect" aria-labelledby="connect-heading">
+      <div class="connect-box">
+        <div class="connect-copy">
+          <span class="eyebrow" style="color:#b8c4bc;">Get started</span>
+          <h2 id="connect-heading">Ready to put your UK website live?</h2>
+          <p>Tell me which option suits your export team, or ask any questions about domain setup, product pages or payment. I personally handle every build here in the UK.</p>
+
+          <div class="direct-email-card">
+            <span>Already have an email from me?</span>
+            <a href="mailto:danny@dmwebservices.co.uk?subject=UK%20Export%20Website%20Enquiry">danny@dmwebservices.co.uk</a>
+            <p>You can simply reply directly to my email thread — or send this form if forwarding internally to your export manager or director.</p>
+          </div>
+        </div>
+
+        <form action="https://formsubmit.co/info@dmwebservices.co.uk" method="POST">
+          <input type="hidden" name="_subject" value="New UK Export Website Enquiry — dmwebservices." />
+          <input type="hidden" name="_cc" value="danny@dmwebservices.co.uk" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_next" value="https://dmwebservices.co.uk/thanks.html" />
+          <input type="text" name="_honey" style="display:none" />
+
+          <div class="form-row">
+            <div class="input-group">
+              <label for="name">Your Name</label>
+              <input type="text" id="name" name="name" required placeholder="e.g. Li Wei / Export Manager" />
+            </div>
+
+            <div class="input-group">
+              <label for="company">Company Name</label>
+              <input type="text" id="company" name="company" required placeholder="e.g. Jiangsu Tianyu Fibre Co., Ltd." />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              <label for="email">Work Email</label>
+              <input type="email" id="email" name="email" required placeholder="export@yourcompany.com" />
+            </div>
+
+            <div class="input-group">
+              <label for="packageSelect">Preferred Package</label>
+              <select id="packageSelect" name="package">
+                <option value="£695 — Full UK Catalogue + .co.uk Setup">£695 — Full UK Catalogue + .co.uk Setup</option>
+                <option value="£295 — UK Trade Showcase (1-Page)">£295 — UK Trade Showcase (1-Page)</option>
+                <option value="£695 Full UK Site + £35/mo Ongoing UK Care">£695 Full UK Site + £35/mo Care Plan</option>
+                <option value="Question / Custom Catalogue Quote">I have a quick question first</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="website">Current Website &amp; Notes</label>
+            <textarea id="website" name="message" rows="4" required placeholder="Share your current website URL, preferred .co.uk domain name, or any adjustments you'd like made to your preview..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-accent">Request Invoice / Start Project →</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 <strong>dmwebservices.</strong> UK web design &amp; export showcases by Danny Manning · <a href="index.html">UK Local Business Site</a></p>
+      <p class="legal-links"><a href="privacy-policy.html">Privacy Policy</a> <span aria-hidden="true">·</span> <a href="terms.html">Terms</a> <span aria-hidden="true">·</span> <a href="refunds.html">Refunds &amp; cancellation</a></p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // Package button selector -> updates form dropdown cleanly
+      var pkgButtons = document.querySelectorAll('.js-select-pkg');
+      var pkgSelect = document.getElementById('packageSelect');
+      pkgButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var val = btn.getAttribute('data-package');
+          if (pkgSelect && val) {
+            for (var i = 0; i < pkgSelect.options.length; i++) {
+              if (pkgSelect.options[i].value === val) {
+                pkgSelect.selectedIndex = i;
+                break;
+              }
+            }
+          }
+        });
+      });
+
+      // Optional safe personalisation via query params (?client=...&domain=...&demo=...)
+      var params = new URLSearchParams(window.location.search);
+      var client = params.get('client');
+      var domain = params.get('domain');
+      var demo = params.get('demo');
+
+      if (client) {
+        var banner = document.getElementById('proposalBanner');
+        var clientEl = document.getElementById('bannerClientName');
+        var domainWrap = document.getElementById('bannerDomainWrap');
+        var companyInput = document.getElementById('company');
+        if (banner && clientEl) {
+          clientEl.textContent = client;
+          if (domain && domainWrap) {
+            domainWrap.textContent = ' · Proposed domain: ' + domain;
+            var mockDomain = document.getElementById('mockAfterDomain');
+            if (mockDomain) mockDomain.textContent = 'https://' + domain;
+          }
+          if (demo && /^[a-z0-9-]+$/i.test(demo)) {
+            var demoLink = document.getElementById('bannerDemoLink');
+            if (demoLink) demoLink.setAttribute('href', 'demos/' + demo + '/');
+          }
+          banner.classList.add('is-visible');
+        }
+        if (companyInput && !companyInput.value) {
+          companyInput.value = client;
+        }
+      }
+    })();
+  </script>
+  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2f89fda10efd4fb687b7716e111816a6"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
