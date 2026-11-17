@@ -1,6 +1,6 @@
 // No live Google calls, authorisation or mailbox used.
 import fs from 'node:fs';import assert from 'node:assert/strict';import{webcrypto}from'node:crypto';globalThis.crypto??=webcrypto;
-const url=path=>{let source=fs.readFileSync(path,'utf8');if(path==='hub/cloud/gmail-service.js')source=source.replace('../email-template.js',url('hub/email-template.js')).replace('./email-assets.js',url('hub/cloud/email-assets.js'));return 'data:text/javascript;base64,'+Buffer.from(source).toString('base64');};
+const url=path=>{let source=fs.readFileSync(path,'utf8');if(path==='hub/cloud/gmail-service.js')source=source.replace('../email-template.js',url('hub/email-template.js')).replace('./email-assets.js',url('hub/cloud/email-assets.js')).replace('./email-image-data.js',url('hub/cloud/email-image-data.js'));return 'data:text/javascript;base64,'+Buffer.from(source).toString('base64');};
 const g=await import(url('hub/cloud/gmail-service.js'));
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public-test',SUPABASE_SERVICE_ROLE_KEY:'server-test',MAIL_TOKEN_KEY:Buffer.alloc(32,9).toString('base64'),GOOGLE_CLIENT_ID:'client',GOOGLE_CLIENT_SECRET:'server-only',GOOGLE_MAILBOX_EMAIL:'project@gmail.com',GOOGLE_SEND_AS_EMAIL:'danny@example.com',STUDIO_ORIGIN:'https://studio.example',GMAIL_ENABLED:'true'};
 const cipher=await g.seal(env,{refresh_token:'private-refresh-token'});assert(!cipher.includes('private-refresh-token'));assert.equal((await g.open(env,cipher)).refresh_token,'private-refresh-token');await assert.rejects(()=>g.open(env,cipher.slice(0,-3)+'bad'));
@@ -40,7 +40,7 @@ console.log('PASS: modern secret API header and legacy fallback. Fake keys only.
 project.demo='/demos/lfastener/';project.name='Shibiao Fastener';project.mailPresentation={format:'branded',postalAddress:'Test business postal address'};
 project.outreachDraft=globalThis.StudioEmail.introduction(project,project.mailPresentation.postalAddress);
 const rendered=globalThis.StudioEmail.render(project,project.outreachDraft);Object.assign(row,{subject:rendered.subject,body:rendered.body,html_body:rendered.html,presentation:rendered.config});
-mock([...preflight().slice(0,5),...rendered.assets.map(a=>[200,fs.readFileSync('images/email/'+a.file)]),...preflight().slice(5),[200,[row]],[200,{id:'formatted-id',threadId:'formatted-thread'}],[200,[row]],[200,{payload:{headers:[]}}]]);
+mock([...preflight().slice(0,5),...preflight().slice(5),[200,[row]],[200,{id:'formatted-id',threadId:'formatted-thread'}],[200,[row]],[200,{payload:{headers:[]}}]]);
 assert.equal((await g.sendGmail(env,row)).status,'accepted');const formatted=calls.find(c=>c.u.endsWith('/messages/send'));const mime=Buffer.from(JSON.parse(formatted.o.body).raw,'base64url').toString('utf8');
 const {spawnSync}=await import('node:child_process');const parsed=spawnSync('python3',['-c',`import sys,email,email.policy
 m=email.message_from_bytes(sys.stdin.buffer.read(),policy=email.policy.default)
@@ -58,12 +58,18 @@ mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Object.assign(Error('
 mock([[200,[]]]);await g.recordQueuedError(env,'queued-id',Error('private-provider-token'));assert(!calls[0].o.body.includes('private-provider-token'));
 console.log('PASS: conditional queued-error persistence, no overwriting claimed records and no unknown provider payload leakage.');
 
-// Preparation alone never claims or submits. ASSETS serves exact deploy-local bytes.
-project.mailPresentation.postalAddress='Test business postal address';let assetCalls=[];
-const assetEnv={...env,ASSETS:{fetch:async request=>{assetCalls.push(request.url);return new Response(fs.readFileSync('images/email/'+new URL(request.url).pathname.split('/').at(-1)));}}};
-mock([...preflight().slice(0,5),[200,[]]]);const prepared=await g.prepareGmail(assetEnv,row);assert.equal(prepared.inline.length,2);assert.equal(assetCalls.length,2);assert(assetCalls.every(u=>u.startsWith('https://studio.example/images/email/')));assert(!calls.some(c=>c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
-// Unknown exceptions identify a safe preparation stage, never raw provider data.
-mock([...preflight().slice(0,5)]);const broken={...env,ASSETS:{fetch:async()=>{throw Error('private-provider-token');}}};
-await assert.rejects(()=>g.prepareGmail(broken,row),e=>e.status===503&&e.message.includes('[images]')&&!e.message.includes('private-provider-token'));assert(!calls.some(c=>c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
+// Embedded bytes are verified and returned without any image/network/ASSETS dependency.
+project.mailPresentation.postalAddress='Test business postal address';
+const assetEnv={...env,ASSETS:{fetch:async()=>{throw Error('ASSETS must not be used');}}};
+mock([...preflight().slice(0,5),[200,[]]]);const prepared=await g.prepareGmail(assetEnv,row);assert.equal(prepared.inline.length,2);
+for(const a of prepared.inline)assert.deepEqual(Buffer.from(a.bytes),fs.readFileSync('images/email/'+a.file));
+assert(!calls.some(c=>c.u.includes('images/email')||c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
 mock([[200,[{token_cipher:'bad.cipher',mailbox:'project@gmail.com'}]]]);await assert.rejects(()=>g.prepareGmail(env,row),e=>e.message.includes('[account]'));assert.equal(calls.length,1);
-console.log('PASS: deploy-local asset integrity and no-send preparation; safe image/account diagnostics before any claim.');
+console.log('PASS: bundled image bytes match source exactly, no image fetch/ASSETS/claim/send in preparation; safe account diagnostics.');
+// A same-size corrupted bundled image still fails integrity BEFORE a claim or send.
+const badLogo=Buffer.from(fs.readFileSync('images/email/dm-logo-v1.png'));badLogo[badLogo.length-1]^=1;
+const fakeImages='data:text/javascript;base64,'+Buffer.from('export const emailImageData='+JSON.stringify({'dm-logo-v1.png':badLogo.toString('base64')})+';').toString('base64');
+const corruptSource=Buffer.from(url('hub/cloud/gmail-service.js').split(',')[1],'base64').toString().replace(url('hub/cloud/email-image-data.js'),fakeImages);
+const corrupt=await import('data:text/javascript;base64,'+Buffer.from(corruptSource).toString('base64'));
+mock(preflight().slice(0,5));await assert.rejects(()=>corrupt.prepareGmail(env,row),e=>e.status===503&&e.message.includes('[images]')&&e.message.includes('changed'));assert(!calls.some(c=>c.u.includes('studio_claim_mail')||c.u.includes('messages/send')));
+console.log('PASS: corrupted bundle rejected by SHA-256 without claiming or sending.');

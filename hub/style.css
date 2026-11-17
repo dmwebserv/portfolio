@@ -98,3 +98,14 @@ body:has(dialog[open]) .orb{visibility:hidden}
 .mail-record-detail{padding:16px;background:#f0f5ef;border-radius:8px;white-space:pre-wrap;font-size:16px;overflow-wrap:anywhere}
 .mail-message-body{font-family:inherit;font-size:16px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;max-height:none;overflow:visible;padding:0}
 @media(max-width:720px){#connected-mail .email-design,.mail-delivery,#mail-history .mail-record{padding:17px}.mail-record-meta{grid-template-columns:minmax(0,1fr);gap:4px}.mail-record-meta dd{margin-bottom:12px}}
+/* Text + colour: status remains understandable without colour vision. */
+.mail-chip,.mail-summary .mail-chip,.mail-record summary .mail-chip,.mailbox-message summary .mail-chip{display:inline-flex;align-items:center;gap:8px;width:fit-content;max-width:100%;font-size:14px;font-weight:650;line-height:1.5;border:1px solid;border-radius:999px;padding:5px 11px;margin:10px 0 4px;background:var(--mail-chip-bg,#edf0ed);color:var(--mail-chip-ink,#46594f);border-color:var(--mail-chip-border,#bbc9bf)}
+.mail-chip::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.mail-chip[data-tone=warning]{--mail-chip-ink:#704200;--mail-chip-bg:#fff0ca;--mail-chip-border:#d5b262}
+.mail-chip[data-tone=pending]{--mail-chip-ink:#1b4f82;--mail-chip-bg:#e7f1ff;--mail-chip-border:#99b8da}
+.mail-chip[data-tone=danger]{--mail-chip-ink:#8d2929;--mail-chip-bg:#ffeded;--mail-chip-border:#db9d9d}
+.mail-chip[data-tone=success]{--mail-chip-ink:#235a38;--mail-chip-bg:#e3f3e6;--mail-chip-border:#91b99c}
+.mail-chip[data-tone=reply]{--mail-chip-ink:#155963;--mail-chip-bg:#dff4f5;--mail-chip-border:#8ebec4}
+.mail-chip[data-tone=neutral]{--mail-chip-ink:#49554f;--mail-chip-bg:#edf0ed;--mail-chip-border:#b9c4bd}
+.mail-at-glance,.mail-summary .mail-at-glance,.mail-record summary .mail-at-glance{display:block;font-size:15px;font-weight:400;line-height:1.6;color:#465e53;margin:4px 0 8px;white-space:normal}
+@media(forced-colors:active){.mail-chip{border:1px solid CanvasText}}
