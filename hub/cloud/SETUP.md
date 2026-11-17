@@ -53,3 +53,7 @@ Account provisioning and live RLS verification cannot be completed from the repo
 
 ## Public website separation
 Public proposal/legal URLs on Studio redirect to `https://dmwebservices.co.uk/`. Deploy the repository main branch through its existing GitHub Pages configuration for those pages. Studio deployment still uses only `dist/studio`; it does not publish or replace the public homepage. Demo previews remain available on both hosts.
+
+## Optional OpenAI project assistant
+
+For owner-only research, private HTML concepts and email drafts, follow [OPENAI-SETUP.md](OPENAI-SETUP.md). This requires an encrypted runtime secret and the separate `ai-quota.sql` migration; existing Studio functions without it. Never put the provider key in the static build.

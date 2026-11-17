@@ -3,3 +3,4 @@ exclude:
   - operations
   - scripts
   - hub
+  - functions
