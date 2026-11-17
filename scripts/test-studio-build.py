@@ -9,7 +9,9 @@ subprocess.run([sys.executable,'scripts/build-studio-cloud.py'],cwd=root,env=env
 out=root/'dist/studio'
 assert (out/'login/index.html').is_file()
 assert not (out/'login.html').exists()
-assert not (out/'_redirects').exists(), 'Login must not use a rewrite to an .html canonical URL'
+assert '/login ' not in (out/'_redirects').read_text(), 'Login must not use a rewrite to an .html canonical URL'
+assert '/uk-export.html https://dmwebservices.co.uk/uk-export.html 302' in (out/'_redirects').read_text()
+assert not (out/'uk-export.html').exists()
 s=(out/'login/index.html').read_text()
 for path in ['/style.css','/config.js','/cloud.js','/login.js']:
     assert '"'+path+'"' in s

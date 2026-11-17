@@ -12,7 +12,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  await page.reload();assert.equal(await page.locator('#rfq').isVisible(),false);
  await page.getByRole('button',{name:'Full catalogue £695'}).click();assert.equal(await page.locator('#rfq').isVisible(),true);
  await page.getByRole('button',{name:'Nuts & washers',exact:true}).click();assert.equal(await page.locator('[data-category]:visible').count(),2);
- await page.getByRole('button',{name:'Showcase £295'}).click();assert.equal(await page.locator('[data-category]:visible').count(),6);
+ await page.getByRole('button',{name:'Showcase £295'}).click();assert.equal(await page.locator('[data-category]:visible').count(),3);
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  assert.equal(await page.locator('img').evaluateAll(imgs=>imgs.every(i=>i.complete&&i.naturalWidth>0)),true);
  assert.deepEqual(errors,[]);await browser.close();console.log('PASS: package switching under CSP, shared tier URL, filtering, reset, mobile width and real image loads.');

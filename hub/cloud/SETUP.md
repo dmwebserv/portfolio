@@ -50,3 +50,6 @@ Stay on Free, monitor limits and decline upgrades. No automated keep-alive used 
 - No Gmail, Stripe, scheduled backups, MFA workflow or realtime subscriptions. Reload to see another device's changes. Back up using private JSON exports; production/offline restore checks are owner tasks.
 
 Account provisioning and live RLS verification cannot be completed from the repository without your provider authorisation. Never send account passwords here. Project URL and publishable key are not administrative credentials, but prefer entering them directly into Pages build settings.
+
+## Public website separation
+Public proposal/legal URLs on Studio redirect to `https://dmwebservices.co.uk/`. Deploy the repository main branch through its existing GitHub Pages configuration for those pages. Studio deployment still uses only `dist/studio`; it does not publish or replace the public homepage. Demo previews remain available on both hosts.

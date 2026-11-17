@@ -42,17 +42,13 @@ for rel in ['README.md','templates/outreach.md','templates/agreement-and-invoice
     dest=out/'operations/uk-export'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(root/'operations/uk-export'/rel,dest)
 # Public, explicitly unofficial concept assets; private records remain in RLS-protected DB.
 shutil.copytree(root/'demos',out/'demos')
-for name in ['uk-export.html','uk-export-terms.html','terms.html','refunds.html','privacy-policy.html','thanks.html']:
-    shutil.copy2(root/name,out/name)
-    page=out/name
-    counter=[0]
-    def externalise(match):
-        attrs,body=match.group(1),match.group(2)
-        if re.search(r'\bsrc\s*=',attrs): return match.group(0)
-        filename=Path(name).stem+'-script-'+str(counter[0])+'.js';counter[0]+=1
-        (out/filename).write_text(body)
-        return '<script src="'+filename+'"'+attrs+'></script>'
-    page.write_text(re.sub(r'<script([^>]*)>(.*?)</script>',externalise,page.read_text(),flags=re.S))
+# Public sales/legal pages live on the main domain, not inside Studio.
+public_pages=['uk-export','uk-export-terms','terms','refunds','privacy-policy','thanks']
+redirects=[]
+for page in public_pages:
+    for suffix in ['', '.html']:
+        redirects.append('/'+page+suffix+' https://dmwebservices.co.uk/'+page+'.html 302')
+(out/'_redirects').write_text('\n'.join(redirects)+'\n')
 shutil.copytree(root/'images',out/'images')
 (out/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
 # Use a real directory index: Pages canonicalises .html paths, so a rewrite
