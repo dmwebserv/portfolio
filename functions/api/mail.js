@@ -8,7 +8,9 @@ export async function onRequest({request,env}){
   const identity=await owner(request,env),headers={...identity.headers,'Content-Type':'application/json'};
   const get=async path=>{const r=await fetch(identity.url+'/rest/v1/'+path,{headers});if(!r.ok)throw Error('Install the mail SQL migration before using connected mail.');return r.json();};
   if(request.method==='GET'){
-   const id=new URL(request.url).searchParams.get('project');if(!id||id.length>200)return json({error:'Project required'},400);
+   const params=new URL(request.url).searchParams;
+   if(params.get('scope')==='mailbox')return json({messages:await get('studio_mail?select=id,project_id,direction,status,recipient,subject,body,detail,created_at,accepted_at&order=created_at.desc&limit=200')});
+   const id=params.get('project');if(!id||id.length>200)return json({error:'Project required'},400);
    return json({messages:await get('studio_mail?project_id=eq.'+encodeURIComponent(id)+'&order=created_at.desc&limit=100')});
   }
   if(!request.headers.get('Content-Type')?.startsWith('application/json'))return json({error:'JSON required'},415);

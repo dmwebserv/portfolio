@@ -25,3 +25,7 @@ mock([...auth(),[{owner_id:'owner',projects:[p]}],[],[{id:'new-formatted'}]]);as
 mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request({...input(),presentation:{...snapshot.config,postalAddress:'Changed'}}),env})).status,409);
 const queuedRow={...stored,id:'queued-retry'};mock([...auth(),[{owner_id:'owner',projects:[p]}],[queuedRow]]);assert.equal((await onRequest({request:request({...input(),presentation:snapshot.config,retry:queuedRow.id}),env})).status,200);assert(!calls.some(c=>c.o.method==='POST'&&c.u.endsWith('/studio_mail')));
 console.log('PASS: formatted snapshot created server-side, appearance drift rejected, exact queued-only retry requires fresh approval.');
+
+// The central mailbox uses the same authenticated owner/RLS access and bounded projection.
+mock([...auth(),[]]);const mailbox=await onRequest({request:new Request('https://studio.example/api/mail?scope=mailbox',{headers:{Authorization:'Bearer fake-token'}}),env});assert.equal(mailbox.status,200);assert.deepEqual((await mailbox.json()).messages,[]);assert(calls.at(-1).u.includes('limit=200'));assert(calls.at(-1).u.includes('select=id,project_id'));assert(!calls.at(-1).u.includes('select=*'));
+console.log('PASS: owner-authenticated mailbox query is bounded, excludes HTML and does not send mail.');

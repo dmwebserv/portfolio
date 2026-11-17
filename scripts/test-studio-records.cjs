@@ -9,10 +9,9 @@ d.querySelector('#add').click();assert.equal(d.querySelector('#project-form').el
 let saved=records(w);assert.equal(saved.length,3);assert(saved.some(p=>p.name==='Shibiao Fastener'));assert(saved.some(p=>p.name==='Tianyu Fibre'));assert(saved.some(p=>p.name==='Test one'));
 d.querySelector('#add').click();submit(w,'Test two');assert.equal(records(w).length,4);assert.equal(new Set(records(w).map(p=>p.id)).size,4);
 assert(!d.querySelector('.intro .eyebrow'));
-// Simulate an original record renamed/overwritten while retaining its original ID.
+// Intentionally removed or renamed sample prospects stay that way.
 const original=saved.find(p=>p.id==='shibiao');original.name='Keep my test';original.domain='test.example';original.notes='Do not replace these notes';w.close();
-const r=boot(saved);r.document.querySelector('[data-restore-concepts]').click();const restored=records(r);
-assert.equal(restored.length,4);assert(restored.some(p=>p.id==='shibiao'&&p.name==='Keep my test'&&p.notes==='Do not replace these notes'));
-assert(restored.some(p=>p.name==='Shibiao Fastener'&&p.id!=='shibiao'));assert.equal(new Set(restored.map(p=>p.id)).size,4);
-assert.equal(r.document.querySelector('[data-restore-concepts]'),null);r.close();
-console.log('PASS: edit then create preserves records, repeated creation uses unique IDs, and concept recovery never overwrites existing data.');
+const r=boot(saved);assert.equal(r.document.querySelector('[data-restore-concepts]'),null);
+assert(r.document.querySelector('#content').textContent.includes('Keep my test'));r.close();
+const empty=boot([]);assert.equal(empty.document.querySelector('[data-open]'),null);assert.equal(empty.document.querySelector('[data-restore-concepts]'),null);empty.close();
+console.log('PASS: edit/create preserves records and unique IDs; removed or renamed sample prospects stay removed without restore prompts.');
