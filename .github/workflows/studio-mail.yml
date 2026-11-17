@@ -1,0 +1,28 @@
+name: Studio mailbox sync
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: studio-mail
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main' && (vars.STUDIO_MAIL_ENABLED == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Send approved queue and check replies
+        env:
+          STUDIO_MAIL_ENABLED: ${{ vars.STUDIO_MAIL_ENABLED }}
+          SUPABASE_URL: ${{ secrets.STUDIO_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.STUDIO_SUPABASE_SERVICE_KEY }}
+          MAIL_OWNER_ID: ${{ secrets.STUDIO_MAIL_OWNER_ID }}
+          MAIL_USERNAME: ${{ secrets.STUDIO_MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.STUDIO_MAIL_PASSWORD }}
+        run: python3 scripts/studio-mail-sync.py
