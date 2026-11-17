@@ -58,6 +58,6 @@ Public proposal/legal URLs on Studio redirect to `https://dmwebservices.co.uk/`.
 
 For owner-only research, private HTML concepts and email drafts, follow [OPENAI-SETUP.md](OPENAI-SETUP.md). This requires an encrypted runtime secret and the separate `ai-quota.sql` migration; existing Studio functions without it. Never put the provider key in the static build.
 
-## Optional IONOS connected mail
+## Optional dedicated Gmail connection
 
-See [MAIL-SETUP.md](MAIL-SETUP.md). Disabled until explicitly configured/enabled. Uses a separate scheduled GitHub Actions bridge, not an instant Cloudflare SMTP service. Do not use real outreach until an owner-controlled send/reply round trip has passed.
+See [MAIL-SETUP.md](MAIL-SETUP.md). Disabled until explicitly configured/enabled. Uses server-side Gmail OAuth for immediate approved first sends and on-demand replies, with optional scheduled HTTPS reply checks. The previous SMTP/IMAP sending worker is retired. Do not use real outreach until an owner-controlled send/reply round trip has passed.

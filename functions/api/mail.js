@@ -1,4 +1,5 @@
 import {owner,json} from '../../hub/cloud/ai-service.js';
+import {sendGmail} from '../../hub/cloud/gmail-service.js';
 export async function onRequest({request,env}){
  try{
   if(!['GET','POST'].includes(request.method))return json({error:'Method not allowed'},405);
@@ -16,6 +17,7 @@ export async function onRequest({request,env}){
    if(!r.ok||await r.json()!==true)return json({error:'Could not cancel: worker may already have claimed this email. Check status and mailbox.'},409);
    return json({cancelled:true});
   }
+  if(env.GMAIL_ENABLED!=='true')return json({error:'Gmail sending is disabled. Connect and enable Gmail first.'},503);
   if(body.approved!==true||typeof body.project!=='string')return json({error:'Explicit approval required'},400);
   const workspaces=await get('studio_workspaces?select=owner_id,projects');const workspace=workspaces[0];const p=workspace?.projects?.find(x=>x.id===body.project);
   if(!p)return json({error:'Save the project first'},400);
@@ -35,6 +37,8 @@ export async function onRequest({request,env}){
   const r=await fetch(identity.url+'/rest/v1/studio_mail',{method:'POST',headers:{...headers,Prefer:'return=representation'},body:JSON.stringify({owner_id:workspace.owner_id,project_id:p.id,direction:'outbound',recipient:p.email,subject,body:content,dedupe,status:'queued'})});
   if(r.status===409)return json({error:'This exact message has already been queued. Refresh mail status.'},409);
   if(!r.ok)throw Error('Could not queue email. Nothing was sent by this request.');
-  return json({message:(await r.json())[0]});
+  const queued=(await r.json())[0];
+  try{return json({message:queued,send:await sendGmail(env,queued)});}
+  catch(e){return json({queued:true,error:e.status?e.message:'Send did not complete. Check status before retrying; the queued record is retained.'},e.status||503);}
  }catch(e){return json({error:e.status?e.message:'Mail request failed. Check setup and refresh status before retrying.'},e.status||503);}
 }

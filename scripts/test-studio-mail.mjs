@@ -1,9 +1,10 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';import {webcrypto} from 'node:crypto';
 globalThis.crypto??=webcrypto;
 const moduleURL='data:text/javascript;base64,'+Buffer.from(fs.readFileSync('hub/cloud/ai-service.js')).toString('base64');
-const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL);
+const transport='data:text/javascript;base64,'+Buffer.from("export async function sendGmail(){return {status:'accepted'};}").toString('base64');
+const source=fs.readFileSync('functions/api/mail.js','utf8').replace('../../hub/cloud/ai-service.js',moduleURL).replace('../../hub/cloud/gmail-service.js',transport);
 const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
-const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public'};
+const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public',GMAIL_ENABLED:'true'};
 const p={id:'p',email:'test@example.com',stage:'Demo ready',outreachDraft:'Subject: Hello\n\nA reviewed email.',checks:{demo:true,facts:true,contact:true,eligibility:true,email:true}};
 const input=()=>({project:'p',approved:true,draft:p.outreachDraft});
 let calls=[];function mock(replies){calls=[];globalThis.fetch=async(u,o={})=>{calls.push({u,o});assert(replies.length,'Unexpected external call');return new Response(JSON.stringify(replies.shift()),{status:200});};}
