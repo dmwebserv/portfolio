@@ -41,3 +41,12 @@ Mailbox lists the latest 200 owner-accessible stored mail records, with search, 
 Browser favicon corners now use real transparency; iOS touch/maskable icons retain their required opaque background. Favicon links are cache-versioned. Regenerate favicons with `PYTHONPATH=<Pillow location> python3 scripts/fix-studio-favicon.py`.
 
 Validation: `scripts/test-studio-workspace-browser.cjs` covers 1440/768/390/320 layouts, five single-visible panes, keyboard navigation, draft/tab retention, native wheel scroll, mailbox filters/search/sync/open, escaped message text, no send calls and transparent corners. Uses mocked accounts only. Auth shell, iOS shell, cloud build, records/workflow, mail UI/send-state, Gmail/MIME and branded email preview tests also pass locally. Physical-device scroll performance and live mailbox delivery must still be tested after deployment. No private workspace data or real mailbox was changed by these checks.
+
+
+## Complete Arena build handoff
+
+**Design & AI → Copy Arena brief** is a self-contained build contract; no second prompt is needed. It includes the existing Studio record ID (not the recipient/contact details), supplied public context, optional notes and the task-specific requirements. For demo builds it delegates collision-safe folder selection, production URL derivation, tier implementation, source/image caveats, desktop/mobile captures, explicit curated-email allowlist/mapping updates, immutable image manifest and server-bundle regeneration, CSP/browser/mock-mail tests, current-branch PR delivery and a structured completion block. It does not add a new public case study or publish automatically.
+
+The agent must label the URL pending deployment until verified. After review, merge and deployment, copy the returned URL into the **existing** prospect's Demo URL field and paste the dated summary into Notes. Demo ready is a recommendation only after deployment/review, not an automatic status change. No private Studio write-back integration exists. Research/outreach/planning tasks do not silently trigger the full build contract; build-only completion fields are marked NOT APPLICABLE.
+
+Regression: `scripts/test-studio-brief.cjs` covers contract paths/assets/tests/hand-back, task scope, record ID, omitted private contact/history fields, opt-in notes, blocked outreach, safe textarea rendering, edited-brief clipboard fallback and no network/API calls.
