@@ -115,13 +115,13 @@ function textPart(part){if(part?.mimeType==='text/plain'&&part.body?.data)return
 export async function syncGmail(env,owner){
  if(env.GMAIL_ENABLED!=='true')throw fail('Gmail is disabled.');
  const {row:connection,token}=await account(env,owner);
- const sent=await db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(owner)+'&direction=eq.outbound&status=in.(accepted,sending,uncertain)&order=gmail_checked_at.asc.nullsfirst&limit=5');
+ const sent=await db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(owner)+'&direction=eq.outbound&status=in.(accepted,sending,uncertain,bounced)&order=gmail_checked_at.asc.nullsfirst&limit=5');
  const all=await db(env,'studio_mail?owner_id=eq.'+encodeURIComponent(owner)+'&direction=eq.inbound&select=gmail_id&limit=1000');const seen=new Set(all.map(m=>m.gmail_id));
  let imported=0;
  for(const outgoing of sent){
   let threadId=outgoing.thread_id;
   // Reconcile uncertain send from its pre-persisted RFC Message-ID. Never resend.
-  if(!threadId&&outgoing.message_id){const found=await gmail(token,'messages?q='+encodeURIComponent('in:sent rfc822msgid:'+outgoing.message_id)+'&maxResults=2');if(found.messages?.length===1){const m=await gmail(token,'messages/'+found.messages[0].id+'?format=metadata');threadId=m.threadId;await update(env,outgoing.id,{status:'accepted',accepted_at:m.internalDate?new Date(Number(m.internalDate)).toISOString():outgoing.created_at,gmail_id:m.id,thread_id:threadId,detail:'Reconciled with Gmail Sent by Message-ID. Not proof of delivery.'});}}
+  if(!threadId&&outgoing.message_id){const found=await gmail(token,'messages?q='+encodeURIComponent('in:sent rfc822msgid:'+outgoing.message_id)+'&maxResults=2');if(found.messages?.length===1){const m=await gmail(token,'messages/'+found.messages[0].id+'?format=metadata');threadId=m.threadId;await update(env,outgoing.id,{...(outgoing.status==='bounced'?{}:{status:'accepted'}),accepted_at:m.internalDate?new Date(Number(m.internalDate)).toISOString():outgoing.created_at,gmail_id:m.id,thread_id:threadId,detail:'Reconciled with Gmail Sent by Message-ID. Not proof of delivery.'});}}
   if(!threadId){await update(env,outgoing.id,{gmail_checked_at:new Date().toISOString()});continue;}
   const thread=await gmail(token,'threads/'+encodeURIComponent(threadId)+'?format=full');
   for(const message of thread.messages||[]){

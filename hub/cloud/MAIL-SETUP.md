@@ -131,3 +131,20 @@ The transport now bundles the three curated public email images into its server-
 Preparation decodes the bundled bytes and verifies size/hash again; it makes no image HTTP requests and never calls ASSETS. This removes the failure-prone network/binding step rather than hiding a fetch error or bypassing verification. No new migration, binding or secret is needed. The old historical image-stage error still cannot reveal its underlying exception, and live readiness must be checked after deployment.
 
 Mailbox summaries, project send summaries and stored records share text-and-colour chips: amber not sent/blocked, blue sending, red uncertain or failed, green Gmail accepted, teal reply received, grey cancelled/unknown. A visible one-line reason accompanies each status, including the not-delivery-confirmation caveat. No animation or colour-only meaning. Historical states are not rewritten and nothing is retried automatically.
+
+### Owner-reported delivery failure and controlled resend
+
+**One-time setup:** in Supabase → SQL Editor → New query, paste the entire contents of `hub/cloud/mail-delivery.sql` and click **Run**. Apply it after `mail.sql`; it is safe to rerun. This adds `bounced`, `bounce_reason`, `bounced_at` and a `resend_of` foreign key, adjusts the first-contact unique index, and adds owner-scoped bounce recording/parent validation functions. Existing mail, content, Gmail receipts and connection tokens stay intact. Without this migration ordinary first-contact sending still works, but the bounce action reports that setup is needed. No DNS/new secret or paid service is required.
+
+After the combined PR is merged and deployed:
+1. Open the **existing** prospect → Email & mailbox → Stored email records.
+2. Open the original **Accepted by Gmail** record → **Received a delivery-failure notice?**
+3. Paste the actual SMTP code/reason (e.g. `550 5.7.0 DT:SPM — recipient server rejected as suspected spam`) and choose **Record delivery failure · does not send**. Confirm it refers to that exact message. This is explicitly an owner report, not automatic bounce verification.
+4. Choose **Prepare a reviewed resend** on that bounced record. It keeps the current draft, does not send or restore old screenshots, and clears all five checks for fresh review. Edit and save draft/appearance if needed. Recheck recipient/eligibility and the final preview; complete all five checks.
+5. Use **Check send readiness**, then **Approve & send again** once. The final confirmation names the recipient and includes the exact draft and notice that this is a new attempt after a reported failure. Passing authentication/readiness does not guarantee recipient acceptance.
+
+The original acceptance date, provider IDs, content and bounce reason remain recorded. The new attempt has a different dedupe key derived from its bounced parent and an explicit link shown in history. Queued preparation recovery is still a retry of that exact replacement, not another send. Replies, opted-out stages, accepted replacements and pending/uncertain sends block further attempts. Database unique indexes protect concurrent requests; compare-and-set permits marking only an owner's accepted outbound message as bounced, never a queued/uncertain one. Bounced original threads remain eligible for reply sync so a late reply still pauses further outreach.
+
+There is no automatic resend, bounce polling/classification, bulk resend or delivery guarantee. Do not fabricate bounce reports to use this as a follow-up facility. Keep DKIM/SPF/DMARC verification and the actual failure reason under review before retrying.
+
+Local tests: `test-mail-delivery-sql.cjs` runs the actual migrations in WASM Postgres (PGlite), checking RLS, parent/project/owner matching, compare-and-set, receipt preservation and duplicate exclusion. `test-studio-resend-ui.cjs` and `test-studio-mail.mjs` cover no-send reporting/readiness, fresh checks, linked attempts and existing send blockers. These tests use fake accounts and never access Supabase or Gmail.

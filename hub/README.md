@@ -50,3 +50,11 @@ Validation: `scripts/test-studio-workspace-browser.cjs` covers 1440/768/390/320 
 The agent must label the URL pending deployment until verified. After review, merge and deployment, copy the returned URL into the **existing** prospect's Demo URL field and paste the dated summary into Notes. Demo ready is a recommendation only after deployment/review, not an automatic status change. No private Studio write-back integration exists. Research/outreach/planning tasks do not silently trigger the full build contract; build-only completion fields are marked NOT APPLICABLE.
 
 Regression: `scripts/test-studio-brief.cjs` covers contract paths/assets/tests/hand-back, task scope, record ID, omitted private contact/history fields, opt-in notes, blocked outreach, safe textarea rendering, edited-brief clipboard fallback and no network/API calls.
+
+### Checklist position preservation
+Review checkboxes update in place instead of rebuilding the whole prospect dialog. The reviewed count, recommendation, activity pane and existing send guard update without remounting the email preview or rechecking Gmail. Keyboard focus and unsaved appearance/draft inputs stay intact. If the recommendation changes height, the sheet offsets its scroll to hold the clicked checkbox at the same visual position.
+
+Regression: `scripts/test-checklist-scroll-browser.cjs` uses mocked cloud/mail at 1440/768/390 pixels to verify all five checkboxes, check/uncheck, focus/node identity, visual scroll anchoring, saved reviews, untouched iframe/appearance fields, live send gating and review invalidation on draft edits. No mail sent or live account accessed.
+
+### Delivery failures and resends
+The original Gmail acceptance is not rewritten as “never submitted.” The owner can report an actual subsequent bounce on an accepted record, keep the receipt/content/reason, and prepare a new linked attempt with fresh review and explicit approval. First apply `hub/cloud/mail-delivery.sql` once in Supabase SQL Editor; see `hub/cloud/MAIL-SETUP.md` for exact steps. No automatic resend, duplicate-prospect workaround or bulk resend. Uncertain/pending delivery, an accepted replacement, replies and opt-out stages still block further sends. Local Postgres, mocked UI/API and Chromium tests cover this; no live database migration or send was performed by the agent.
