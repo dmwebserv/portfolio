@@ -1,7 +1,7 @@
 'use strict';
 (()=>{
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- window.StudioMail={mount(p,{toast,save,log,flush=async()=>{},postalAddress=''}){
+ window.StudioMail={mount(p,{toast,save,log,flush=async()=>{},reviewChanged=()=>{},postalAddress=''}){
   const target=document.getElementById('connected-mail');if(!target)return;
   target.innerHTML=`<section class="detail-section live-ai"><h3>Connected mailbox</h3><p>Connect the dedicated Gmail account you already use for your domain. Approved first emails are submitted to Gmail immediately. Replies can be checked here or by the optional scheduled sync.</p><p id="gmail-connection" role="status">Checking Gmail setup…</p><div id="mail-summary" class="mail-summary" role="status">Loading stored send status…</div><p id="mail-blocked" class="mail-reason"></p><div id="mail-error" class="mail-error" role="alert" hidden></div><div class="tools"><button class="secondary" id="gmail-connect">Connect Gmail</button><button class="secondary" id="gmail-disconnect">Disconnect Gmail</button><button class="primary" id="mail-send" disabled>Approve & send first email</button><button class="secondary" id="mail-refresh">Check sent mail & replies</button></div><p id="mail-status" role="status">Check status before sending. Replies and follow-ups can still be handled in your normal mailbox.</p><div id="mail-history"></div><details open class="email-design"><summary>Email design & preview</summary><p>A restrained signature logo and clickable demo screenshot. Images are embedded in the email, not loaded from a tracking server. No open tracking.</p><div class="tools"><label>Format<select id="email-format"><option value="branded">Professional · logo & demo</option><option value="plain">Plain text</option></select></label><button class="secondary" id="email-intro">Prepare personal introduction</button></div><label>Business postal details<input id="email-postal" maxlength="500" placeholder="Required business postal details — never invented"></label><button class="secondary" id="email-design-save">Save appearance</button><p id="email-preview-status" role="status"></p><iframe id="email-preview" title="Email design preview" sandbox="allow-same-origin" referrerpolicy="no-referrer"></iframe><p>Preview adapts to this window. The recipient may use different fonts, dark mode or block images; the plain-text version and visible demo link remain available.</p></details></section>`;
   // Keep the recipient-facing design ahead of any send action.
@@ -38,6 +38,7 @@
    return '';
   }
   function updateSend(){const message=reason();send.disabled=!!message;send.setAttribute('aria-describedby','mail-blocked mail-summary');target.querySelector('#mail-blocked').textContent=message||'Ready for your final approval. Nothing is sent until you confirm.';}
+  target.addEventListener('studio:review-changed',updateSend);
   if(p.mailLastError?.message)showError(p.mailLastError.message);
   const template=window.StudioEmail,format=document.getElementById('email-format'),postal=document.getElementById('email-postal');
   format.value=p.mailPresentation?.format||'branded';postal.value=p.mailPresentation?.postalAddress||postalAddress;
@@ -55,7 +56,7 @@
     frame.srcdoc=html.replace('<head>','<head>'+policy);status.textContent=result.html?(result.assets.some(a=>a.cid==='studio-demo')?'Logo, linked screenshot and plain-text fallback ready for review.':'Signature layout ready. No matching curated demo screenshot found; no image has been invented.'):'Plain-text email selected.';
    }catch(e){frame.srcdoc='';status.textContent=e.message;}
   }
-  function invalidate(){p.checks=p.checks||{};p.checks.email=false;const box=document.querySelector('[data-check="email"]');if(box)box.checked=false;preview();updateSend();}
+  function invalidate(){p.checks=p.checks||{};p.checks.email=false;const box=document.querySelector('[data-check="email"]');if(box)box.checked=false;reviewChanged();preview();updateSend();}
   let previewTimer;const schedulePreview=()=>{clearTimeout(previewTimer);previewTimer=setTimeout(preview,220);};
   format.onchange=invalidate;postal.oninput=invalidate;draftInput?.addEventListener('input',schedulePreview);
   function saveDraftAndAppearance(){p.mailPresentation={format:format.value,postalAddress:postal.value.trim(),templateVersion:template?.settings(p).version||2};p.outreachDraft=draftInput?.value||'';invalidate();log?.(p,'Email draft and appearance saved; review required');save?.();toast('Draft and appearance saved together. Review the final preview, then confirm the email review check.');}
