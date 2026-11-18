@@ -12,7 +12,7 @@
   const readiness=document.createElement('div');readiness.className='mail-readiness';
   readiness.innerHTML='<button class="secondary" id="mail-preflight">Check send readiness · does not send</button><p id="mail-preflight-result" role="status"></p>';
   delivery.querySelector('.tools').before(readiness);
-  const state=document.getElementById('mail-status'),send=document.getElementById('mail-send');let busy=false,connected=false,enabled=false,messages=[],statusKnown=false,statusError=false;
+  const state=document.getElementById('mail-status'),send=document.getElementById('mail-send');let busy=false,connected=false,enabled=false,messages=[],statusKnown=false,statusError=false,resendId=null;
   function showError(message){
    if(!target.isConnected)return;
    const box=target.querySelector('#mail-error');box.hidden=!message;box.textContent=message||'';
@@ -25,19 +25,20 @@
    if(!enabled)return 'Gmail sending is disabled in server settings.';
    if(['Do not contact','Not interested'].includes(p.stage))return 'Outreach is blocked for this prospect.';
    if(messages.some(m=>m.direction==='inbound'))return 'A reply is recorded. Continue the conversation in Gmail.';
-   const outbound=messages.find(m=>m.direction==='outbound'&&m.status!=='failed');
+   const outbound=messages.find(m=>m.direction==='outbound'&&!['failed','bounced'].includes(m.status));
    if(outbound?.status==='queued'&&outbound.presentation&&outbound.presentation.version!==template?.settings(p).version)return 'This unsent queued draft uses the previous screenshots. Cancel it below, save the new appearance and review before a fresh approval.';
    if(outbound?.status==='queued')return 'Queued at the last check. Use Check send readiness to diagnose preparation without sending. Review the stored record and Gmail Sent before retrying.';
    if(outbound?.status==='sending')return 'A send attempt was claimed. Its outcome is not yet confirmed. Check Gmail Sent; do not retry.';
    if(outbound?.status==='uncertain')return 'Send outcome uncertain. Check Gmail Sent before taking any further action. Automatic retry is blocked.';
    if(outbound?.status==='accepted')return 'Gmail accepted this first email. Another first-contact send is blocked to prevent duplicates.';
-   if(p.sentAt)return 'A first email has already been recorded. Follow-ups must be handled in Gmail.';
+   if(messages.some(m=>m.status==='bounced')&&!resendId)return 'Delivery failure recorded. Open that stored record and choose Prepare a reviewed resend.';
+   if(p.sentAt&&!resendId)return 'A first email has already been recorded. Follow-ups must be handled in Gmail.';
    if(!p.email||!/^\S+@\S+\.\S+$/.test(p.email))return 'Add a verified recipient email in Edit details.';
    const missing=['demo','facts','contact','eligibility','email'].filter(k=>!p.checks?.[k]);
    if(missing.length)return 'Complete the review checks: '+missing.join(', ')+'.';
    return '';
   }
-  function updateSend(){const message=reason();send.disabled=!!message;send.setAttribute('aria-describedby','mail-blocked mail-summary');target.querySelector('#mail-blocked').textContent=message||'Ready for your final approval. Nothing is sent until you confirm.';}
+  function updateSend(){send.textContent=resendId?'Approve & send again':'Approve & send first email';const message=reason();send.disabled=!!message;send.setAttribute('aria-describedby','mail-blocked mail-summary');target.querySelector('#mail-blocked').textContent=message||'Ready for your final approval. Nothing is sent until you confirm.';}
   target.addEventListener('studio:review-changed',updateSend);
   if(p.mailLastError?.message)showError(p.mailLastError.message);
   const template=window.StudioEmail,format=document.getElementById('email-format'),postal=document.getElementById('email-postal');
@@ -75,7 +76,7 @@
    if(checkGoogle&&connected&&enabled)await window.StudioCloud.api('/api/gmail/sync',{});
    const result=await window.StudioCloud.api('/api/mail?project='+encodeURIComponent(p.id));
    if(!target.isConnected||document.getElementById('mail-send')!==send)return;
-   messages=result.messages||[];statusKnown=true;const reply=messages.some(m=>m.direction==='inbound'),pending=messages.some(m=>m.direction==='outbound'&&m.status!=='failed');
+   messages=result.messages||[];statusKnown=true;const reply=messages.some(m=>m.direction==='inbound'),pending=messages.some(m=>m.direction==='outbound'&&!['failed','bounced'].includes(m.status));
    let changed=false;
    const accepted=messages.find(m=>m.direction==='outbound'&&m.status==='accepted');
    if(accepted&&!p.sentAt){p.sentAt=(accepted.accepted_at||accepted.created_at).slice(0,10);if(['Research','Demo preparation','Demo ready','No response'].includes(p.stage))p.stage='Contacted';(p.outreachHistory||=[]).push({kind:'Gmail accepted (not delivery confirmation)',date:p.sentAt,to:accepted.recipient,body:'Subject: '+accepted.subject+'\n\n'+accepted.body});if(p.stage==='Contacted'){p.next='Check connected mailbox for a reply; no automatic follow-up.';p.due='';}log?.(p,'Connected email accepted by Gmail');changed=true;}
@@ -83,12 +84,21 @@
    if(reply&&replyKey!==p.mailReplySeen){p.mailReplySeen=replyKey;if(['Research','Demo preparation','Demo ready','Contacted','No response'].includes(p.stage)){p.next='Reply received — review in mailbox before responding.';p.due='';p.stage='In discussion';}log?.(p,'Connected reply received; review in Gmail');changed=true;}
    if(changed)save?.();
    updateSend();
-   const latest=messages.find(m=>m.direction==='outbound'),labels={queued:'Queued — not sent',sending:'Send attempt started — outcome not confirmed',uncertain:'Outcome uncertain — do not resend',accepted:'Accepted by Gmail — not delivery confirmation',failed:'Cancelled / failed before another attempt'};
-   target.querySelector('#mail-summary').innerHTML=latest?`<strong>${window.StudioMailStatus?.html(latest)||esc(labels[latest.status]||latest.status)}</strong><span>${esc(latest.subject)} · ${esc(latest.recipient)}</span><p>${esc(latest.detail||'No further detail recorded.')}</p>`:'<strong>No connected send recorded for this prospect.</strong>';
+   const latest=messages.find(m=>m.direction==='outbound'),labels={queued:'Queued — not sent',sending:'Send attempt started — outcome not confirmed',uncertain:'Outcome uncertain — do not resend',accepted:'Accepted by Gmail — not delivery confirmation',failed:'Cancelled / failed before another attempt',bounced:'Delivery failed — owner reported'};
+   target.querySelector('#mail-summary').innerHTML=latest?`<strong>${window.StudioMailStatus?.html(latest)||esc(labels[latest.status]||latest.status)}</strong><span>${esc(latest.subject)} · ${esc(latest.recipient)}</span><p>${esc(latest.bounce_reason||latest.detail||'No further detail recorded.')}</p>`:'<strong>No connected send recorded for this prospect.</strong>';
    if(latest?.status==='queued'&&latest.detail)showError(latest.detail);
    if(latest?.status==='accepted'&&p.mailLastError){p.mailLastError=null;target.querySelector('#mail-error').hidden=true;save?.();}
    state.textContent=reply?'Reply received — outreach paused. Read below and respond in your normal mailbox.':messages.length?'Latest stored mail status shown below. Accepted means Gmail accepted the request, not delivered. Refresh to check for changes.':'No connected messages recorded. Connect and enable Gmail before sending.';
-   document.getElementById('mail-history').innerHTML=messages.length?'<h3>Stored email records</h3>'+messages.map(m=>`<details class="mail-record" ${m===messages[0]?'open':''}><summary><strong>${esc(m.subject||'(No subject)')}</strong>${window.StudioMailStatus?.html(m)||'<span>'+esc(m.direction==='inbound'?'Reply received':labels[m.status]||m.status)+'</span>'}</summary><dl class="mail-record-meta"><dt>To</dt><dd>${esc(m.recipient)}</dd><dt>Recorded</dt><dd>${esc(readableDate(m.created_at))}</dd>${m.accepted_at?`<dt>Gmail accepted</dt><dd>${esc(readableDate(m.accepted_at))}</dd>`:''}<dt>Record ID</dt><dd>${esc(m.id||'Not available')}</dd></dl><div class="mail-record-detail">${esc(m.detail||'No additional transport detail recorded.')}</div><h4>Saved plain-text email</h4><pre class="mail-message-body">${esc(m.body)}</pre>${m.status==='queued'?`<div class="tools"><button class="secondary" data-cancel-mail="${esc(m.id)}">Cancel queued email</button>${!m.presentation||m.presentation.version===template?.settings(p).version?`<button class="secondary" data-retry-mail="${esc(m.id)}">Review and retry this queued email</button>`:''}</div>`:''}</details>`).join(''):'<p>No stored email records yet.</p>';
+   document.getElementById('mail-history').innerHTML=messages.length?'<h3>Stored email records</h3>'+messages.map(m=>`<details class="mail-record" ${m===messages[0]?'open':''}><summary><strong>${esc(m.subject||'(No subject)')}</strong>${window.StudioMailStatus?.html(m)||'<span>'+esc(m.direction==='inbound'?'Reply received':labels[m.status]||m.status)+'</span>'}</summary><dl class="mail-record-meta"><dt>To</dt><dd>${esc(m.recipient)}</dd><dt>Recorded</dt><dd>${esc(readableDate(m.created_at))}</dd>${m.accepted_at?`<dt>Gmail accepted</dt><dd>${esc(readableDate(m.accepted_at))}</dd>`:''}${m.resend_of?`<dt>Resend of</dt><dd>${esc(m.resend_of)}</dd>`:''}<dt>Record ID</dt><dd>${esc(m.id||'Not available')}</dd></dl><div class="mail-record-detail">${esc(m.detail||'No additional transport detail recorded.')}</div>${m.bounce_reason?`<div class="mail-record-detail"><strong>Owner-reported delivery failure</strong><p>${esc(m.bounce_reason)}</p><p>Recorded: ${esc(readableDate(m.bounced_at))}</p></div>`:''}<h4>Saved plain-text email</h4><pre class="mail-message-body">${esc(m.body)}</pre>${m.status==='queued'?`<div class="tools"><button class="secondary" data-cancel-mail="${esc(m.id)}">Cancel queued email</button>${!m.presentation||m.presentation.version===template?.settings(p).version?`<button class="secondary" data-retry-mail="${esc(m.id)}">Review and retry this queued email</button>`:''}</div>`:''}${m.direction==='outbound'&&m.status==='accepted'?`<details class="bounce-report"><summary>Received a delivery-failure notice?</summary><p>Only record a genuine bounce from the receiving mail system. Not a way to follow up or bypass uncertain delivery. The original receipt and message will be kept.</p><label>Bounce reason<textarea data-bounce-reason="${esc(m.id)}" rows="3" maxlength="4000" placeholder="Paste the SMTP code and rejection reason; omit private headers."></textarea></label><button class="secondary" data-record-bounce="${esc(m.id)}">Record delivery failure · does not send</button></details>`:''}${m.status==='bounced'&&!reply&&!['Do not contact','Not interested'].includes(p.stage)&&!pending?`<button class="secondary" data-prepare-resend="${esc(m.id)}">Prepare a reviewed resend</button>`:''}</details>`).join(''):'<p>No stored email records yet.</p>';
+   target.querySelectorAll('[data-record-bounce]').forEach(button=>button.onclick=async()=>{
+    const input=[...target.querySelectorAll('[data-bounce-reason]')].find(el=>el.dataset.bounceReason===button.dataset.recordBounce),reason=input?.value.trim()||'';
+    if(reason.length<10)return showError('Enter the actual delivery-failure reason (at least 10 characters).');
+    if(!confirm('Confirm you received an actual delivery-failure notice for this exact message. This records your report; it does not send or verify a bounce automatically.'))return;
+    button.disabled=true;try{await window.StudioCloud.api('/api/mail',{bounce:button.dataset.recordBounce,reason,confirmed:true});log?.(p,'Delivery failure reported by owner');p.next='Review the delivery-failure reason before deciding whether to prepare a resend.';save?.();await refresh();}catch(e){showError(e.message);}finally{button.disabled=false;}
+   });
+   target.querySelectorAll('[data-prepare-resend]').forEach(button=>button.onclick=()=>{
+    resendId=button.dataset.prepareResend;p.checks=p.checks||{};for(const key of ['demo','facts','contact','eligibility','email']){p.checks[key]=false;const box=document.querySelector('[data-check="'+key+'"]');if(box)box.checked=false;}invalidate();for(const id of ['prepare-email','record-sent','record-followup','email-intro']){const control=document.getElementById(id);if(control)control.disabled=true;}save?.();state.textContent='Resend prepared from the current draft. Review the recipient, wording, appearance and checks again. Then check readiness and approve the new attempt. Nothing has been sent.';design.open=true;design.scrollIntoView?.({block:'start'});
+   });
    target.querySelectorAll('[data-cancel-mail]').forEach(b=>b.onclick=async()=>{if(!confirm('Cancel this queued email? If sending has already started it cannot be recalled.'))return;b.disabled=true;try{await window.StudioCloud.api('/api/mail',{cancel:b.dataset.cancelMail});await refresh();}catch(e){showError(e.message);}});
    target.querySelectorAll('[data-retry-mail]').forEach(b=>b.onclick=()=>approve(b.dataset.retryMail));
    if(reply||pending){for(const id of ['record-sent','record-followup','prepare-email','open-email']){const el=document.getElementById(id);if(el)el.disabled=true;}}
@@ -99,7 +109,7 @@
    if(!window.StudioCloud?.api){result.textContent='Available only in the signed-in private Studio.';return;}
    if(draftInput?.value!==(p.outreachDraft||'')){result.textContent='Save the draft and complete its review first, so this check tests the same email you are viewing.';return;}
    button.disabled=true;result.textContent='Checking the saved email, Gmail connection and embedded images. Nothing will be sent…';
-   try{await flush();const r=await window.StudioCloud.api('/api/mail',{project:p.id,preflight:true});if(target.isConnected)result.textContent=r.message||'Readiness check passed. No email was sent.';}
+   try{await flush();const r=await window.StudioCloud.api('/api/mail',{project:p.id,preflight:true,...(resendId?{resendOf:resendId}:{})});if(target.isConnected)result.textContent=r.message||'Readiness check passed. No email was sent.';}
    catch(e){if(target.isConnected)result.textContent='Readiness check stopped: '+e.message+' No send was requested by this check.';}
    finally{button.disabled=false;}
   };
@@ -108,15 +118,16 @@
   document.getElementById('mail-refresh').onclick=()=>refresh(true).catch(statusFailed);
   async function approve(retry){
    if(busy)return;
+   if(retry)resendId=messages.find(m=>m.id===retry)?.resend_of||null;
    if(!retry&&reason()){showError(reason());return;}
    if(!window.StudioCloud?.api){showError('Deploy and configure mail first.');return;}
    const draft=document.getElementById('outreach-text')?.value||'';
    if(['Do not contact','Not interested'].includes(p.stage)||!['demo','facts','contact','eligibility','email'].every(k=>p.checks?.[k])){showError('Save the final draft and complete all five review checks first.');return;}
    if(template&&JSON.stringify(template.settings(p))!==JSON.stringify(template.settings({...p,mailPresentation:{format:format.value,postalAddress:postal.value.trim()}}))){showError('Save appearance and review the email first.');return;}
    let presentation;try{presentation=template?.render(p,draft).config;}catch(e){showError(e.message);return;}
-   if(!confirm(`Approve this exact email to ${p.email}?\n\n${draft}\n\nIt will be submitted now using your verified domain identity in Gmail. Do not also send it manually. ${presentation?.format==='branded'?'Includes the reviewed logo/demo layout and plain-text fallback. ':''}This version supports first contact only.`))return;
+   if(!confirm(`Approve this exact email to ${p.email}?\n\n${draft}\n\nIt will be submitted now using your verified domain identity in Gmail. Do not also send it manually. ${presentation?.format==='branded'?'Includes the reviewed logo/demo layout and plain-text fallback. ':''}${resendId?'This is a NEW attempt after an owner-reported delivery failure, not a retry of an uncertain send.':'This version supports first contact only.'}`))return;
    busy=true;updateSend();state.textContent='Submitting approved email to Gmail…';
-   try{await flush();const r=await window.StudioCloud.api('/api/mail',{project:p.id,draft,approved:true,presentation,...(retry?{retry}:{})});p.mailLastError=null;target.querySelector('#mail-error').hidden=true;save?.();await refresh();if(r.send?.status==='uncertain')state.textContent='Send outcome uncertain. Check Gmail Sent before any manual retry.';}
+   try{await flush();const r=await window.StudioCloud.api('/api/mail',{project:p.id,draft,approved:true,presentation,...(resendId?{resendOf:resendId}:{}),...(retry?{retry}:{})});p.mailLastError=null;if(resendId){log?.(p,'Replacement attempt submitted after an owner-reported delivery failure');p.next='Check stored send status, delivery failures and replies. Do not send another copy.';}target.querySelector('#mail-error').hidden=true;save?.();await refresh();if(r.send?.status==='uncertain')state.textContent='Send outcome uncertain. Check Gmail Sent before any manual retry.';}
    catch(e){showError(e.message+' Check the stored status before retrying; do not also send manually.');try{await refresh();}catch{statusFailed();} }
    finally{busy=false;updateSend();}
   }

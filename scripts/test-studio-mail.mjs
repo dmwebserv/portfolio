@@ -37,3 +37,18 @@ const check=await onRequest({request:request({project:'p',preflight:true}),env})
 globalThis.__preflightFailure=true;mock([...auth(),[{owner_id:'owner',projects:[p]}],[]]);
 const stopped=await onRequest({request:request({...input(),presentation:globalThis.StudioEmail.settings(p)}),env});assert.equal(stopped.status,503);assert((await stopped.json()).error.includes('[images]'));assert(!calls.some(c=>c.u.endsWith('/rest/v1/studio_mail')&&c.o.method==='POST'));delete globalThis.__preflightFailure;
 console.log('PASS: safe readiness check for queued records, and preparation failures create no new queued send.');
+// Owner reporting a real bounce is explicit and does not call the transport.
+const bounceId='11111111-1111-4111-8111-111111111111';
+mock([...auth(),true]);assert.equal((await onRequest({request:request({bounce:bounceId,confirmed:true,reason:'550 5.7.0 DT:SPM rejected by recipient server'}),env})).status,200);assert(calls.at(-1).u.includes('studio_record_bounce'));assert.equal(JSON.parse(calls.at(-1).o.body).mail_id,bounceId);
+mock(auth());assert.equal((await onRequest({request:request({bounce:bounceId,reason:'550 rejected',confirmed:false}),env})).status,400);
+const bounced={id:bounceId,direction:'outbound',status:'bounced',recipient:p.email,bounce_reason:'550 policy rejection'};
+p.sentAt='2026-11-12';
+mock([...auth(),[{owner_id:'owner',projects:[p]}],[bounced],[{id:'replacement'}]]);const replacement=await onRequest({request:request({...input(),resendOf:bounceId,presentation:globalThis.StudioEmail.settings(p)}),env});assert.equal(replacement.status,200);const savedReplacement=JSON.parse(calls.at(-1).o.body);assert.equal(savedReplacement.resend_of,bounceId);assert.equal(savedReplacement.status,'queued');const resendDedupe=savedReplacement.dedupe;
+mock([...auth(),[{owner_id:'owner',projects:[p]}],[bounced]]);assert.equal((await onRequest({request:request({...input(),presentation:globalThis.StudioEmail.settings(p)}),env})).status,409);
+for(const obstacle of [{direction:'inbound',status:'received'},{direction:'outbound',status:'uncertain'},{direction:'outbound',status:'accepted'},{direction:'outbound',status:'queued',resend_of:bounceId}]){
+ mock([...auth(),[{owner_id:'owner',projects:[p]}],[bounced,obstacle]]);assert.equal((await onRequest({request:request({...input(),resendOf:bounceId,presentation:globalThis.StudioEmail.settings(p)}),env})).status,409);
+}
+p.stage='Do not contact';mock([...auth(),[{owner_id:'owner',projects:[p]}]]);assert.equal((await onRequest({request:request({...input(),resendOf:bounceId}),env})).status,403);p.stage='Demo ready';
+// A queued linked replacement keeps its dedupe/retry identity; it is not a fresh attempt.
+mock([...auth(),[{owner_id:'owner',projects:[p]}],[bounced,{id:'replacement',resend_of:bounceId,direction:'outbound',status:'queued',dedupe:resendDedupe}]]);assert.equal((await onRequest({request:request({...input(),retry:'replacement',resendOf:bounceId,presentation:globalThis.StudioEmail.settings(p)}),env})).status,200);
+console.log('PASS: explicit bounce reporting, linked fresh resend and queued retry; existing acceptance/uncertainty/reply/opt-out guards remain enforced.');

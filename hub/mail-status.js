@@ -8,6 +8,7 @@
    case 'sending':return {tone:'pending',label:'Sending · outcome pending',reason:'A send attempt has started. Check Gmail Sent; do not send another copy.'};
    case 'uncertain':return {tone:'danger',label:'Outcome uncertain',reason:'Check Gmail Sent before doing anything else. Do not resend.'};
    case 'accepted':return {tone:'success',label:'Accepted by Gmail',reason:'Gmail accepted the request. Inbox delivery is not confirmed.'};
+   case 'bounced':return {tone:'danger',label:'Delivery failed · reported',reason:'Owner recorded a delivery-failure notice. Review the reason before preparing another attempt.'};
    case 'failed':return /cancel/i.test(m.detail||'')?{tone:'neutral',label:'Cancelled',reason:'This stored attempt was cancelled. It has not been retried.'}:{tone:'danger',label:'Failed / stopped',reason:'This attempt stopped. Read the recorded detail before taking action.'};
    default:return {tone:'neutral',label:'Status unavailable',reason:'Refresh stored records before sending or retrying.'};
   }
